@@ -13,26 +13,44 @@ editor: visual
 
 ## Dataset Overview
 
--   Source: \[Source\]
+### Description (Source: [kaggle.com](https://www.kaggle.com/datasets/jahnavipaliwal/field-of-study-vs-occupation)):
 
--   Description: \[Key attributes of dataset\]
-
--   Variables: \[Describe variables/columns\]
+This dataset of over 30,000 entries of 22 attributes regarding each individual's personal details, job satisfaction, and more, provides excellent insight into the reasons individuals change careers. The dataset focuses on the possible sources of influence that could push someone to both change careers, and also to stay in one.
 
 # Data Preparation
 
 ## Cleaning the Data
 
 ```{r}
-# load and clean data
+data <- read.csv("data/career.csv")
+
+data <- data[, c(1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 15, 16, 21, 23)]
+
+colnames(data) <- c("field_of_study",              # categorical string: field of study during education
+                    "current_occupation",          # categorical string: current industry employed in
+                    "age",                         # integer: current age
+                    "gender",                      # categorical string: gender of individual
+                    "years_experience",            # integer: # of years having been in the workforce
+                    "education_level",             # ordinal string: highest level of education completed
+                    "industry_growth_rate",        # ordinal string: growth rate of the current industry employed in
+                    "job_satisfaction",            # integer (1-10 scale): rating of current job satisfaction
+                    "work_life_balance",           # integer (1-10 scale): rating of perceived work-life balance
+                    "salary",                      # integer: annual salary in USD
+                    "job_security",                # integer (1-10 scale): rating of perceived job security
+                    "career_change_interest",      # boolean (1 = Yes, 0 = No): whether interested in changing industries
+                    "family_influence",            # ordinal string: degree of influence family had on career choice
+                    "mentor_availability",         # boolean (1 = Yes, 0 = No): access to a mentor in current occupation
+                    "career_changes",              # integer: # of career changes in the past
+                    "likely_to_change_occupation") # boolean (1 = Yes, 0 = No): whether likely to change occupation
 ```
-data <- load.csv(career_change_prediction_dataset.csv
-\[Quick summary of cleaning\]
+
+Although many attributes are very useful, given that this analysis won't require all 22 of them, there's no need to include each and every one. We also changed each variable name to better fit common naming conventions, and to better clarify their purpose.
+
 
 ## Summary Statistics
 
 ```{r}
-# summary()
+# summary(data)
 ```
 
 \[Maybe a quick summary if anything interesting? if not, not important\]
@@ -49,14 +67,16 @@ data <- load.csv(career_change_prediction_dataset.csv
 
 ## Analysis #2 (REPLACE WITH APPROPRIATE NAME)
 
-```{r} # do the thingy}
+```{r}
+# do the thingy
 ```
 
 \[Summary of analysis\]
 
 ## Analysis #3 (REPLACE WITH APPROPRIATE NAME)
 
-```{r} # do the thingy}
+```{r}
+# do the thingy
 ```
 
 \[Summary of analysis\]

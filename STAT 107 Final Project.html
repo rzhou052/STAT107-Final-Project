@@ -111,11 +111,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="dataset-overview" class="level2">
 <h2 class="anchored" data-anchor-id="dataset-overview">Dataset Overview</h2>
-<ul>
-<li><p>Source: [Source]</p></li>
-<li><p>Description: [Key attributes of dataset]</p></li>
-<li><p>Variables: [Describe variables/columns]</p></li>
-</ul>
+<section id="description-source-kaggle.com" class="level3">
+<h3 class="anchored" data-anchor-id="description-source-kaggle.com">Description (Source: <a href="https://www.kaggle.com/datasets/jahnavipaliwal/field-of-study-vs-occupation">kaggle.com</a>):</h3>
+<p>This dataset of over 30,000 entries of 22 attributes regarding each individual’s personal details, job satisfaction, and more, provides excellent insight into the reasons individuals change careers. The dataset focuses on the possible sources of influence that could push someone to both change careers, and also to stay in one.</p>
+</section>
 </section>
 </section>
 <section id="data-preparation" class="level1">
@@ -123,14 +122,33 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="cleaning-the-data" class="level2">
 <h2 class="anchored" data-anchor-id="cleaning-the-data">Cleaning the Data</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># load and clean data</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/career.csv"</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> data[, <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">6</span>, <span class="dv">7</span>, <span class="dv">8</span>, <span class="dv">9</span>, <span class="dv">11</span>, <span class="dv">12</span>, <span class="dv">13</span>, <span class="dv">15</span>, <span class="dv">16</span>, <span class="dv">21</span>, <span class="dv">23</span>)]</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(data) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"field_of_study"</span>,              <span class="co"># categorical string: field of study during education</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"current_occupation"</span>,          <span class="co"># categorical string: current industry employed in</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"age"</span>,                         <span class="co"># integer: current age</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"gender"</span>,                      <span class="co"># categorical string: gender of individual</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"years_experience"</span>,            <span class="co"># integer: # of years having been in the workforce</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"education_level"</span>,             <span class="co"># ordinal string: highest level of education completed</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"industry_growth_rate"</span>,        <span class="co"># ordinal string: growth rate of the current industry employed in</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"job_satisfaction"</span>,            <span class="co"># integer (1-10 scale): rating of current job satisfaction</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"work_life_balance"</span>,           <span class="co"># integer (1-10 scale): rating of perceived work-life balance</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"salary"</span>,                      <span class="co"># integer: annual salary in USD</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"job_security"</span>,                <span class="co"># integer (1-10 scale): rating of perceived job security</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"career_change_interest"</span>,      <span class="co"># boolean (1 = Yes, 0 = No): whether interested in changing industries</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"family_influence"</span>,            <span class="co"># ordinal string: degree of influence family had on career choice</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"mentor_availability"</span>,         <span class="co"># boolean (1 = Yes, 0 = No): access to a mentor in current occupation</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"career_changes"</span>,              <span class="co"># integer: # of career changes in the past</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"likely_to_change_occupation"</span>) <span class="co"># boolean (1 = Yes, 0 = No): whether likely to change occupation</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>[Quick summary of cleaning]</p>
+<p>Although many attributes are very useful, given that this analysis won’t require all 22 of them, there’s no need to include each and every one. We also changed each variable name to better fit common naming conventions, and to better clarify their purpose.</p>
 </section>
 <section id="summary-statistics" class="level2">
 <h2 class="anchored" data-anchor-id="summary-statistics">Summary Statistics</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># summary()</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># summary(data)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>[Maybe a quick summary if anything interesting? if not, not important]</p>
 </section>
@@ -146,12 +164,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="analysis-2-replace-with-appropriate-name" class="level2">
 <h2 class="anchored" data-anchor-id="analysis-2-replace-with-appropriate-name">Analysis #2 (REPLACE WITH APPROPRIATE NAME)</h2>
-<pre class="{r} # do the thingy}"><code></code></pre>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># do the thingy</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 <p>[Summary of analysis]</p>
 </section>
 <section id="analysis-3-replace-with-appropriate-name" class="level2">
 <h2 class="anchored" data-anchor-id="analysis-3-replace-with-appropriate-name">Analysis #3 (REPLACE WITH APPROPRIATE NAME)</h2>
-<pre class="{r} # do the thingy}"><code></code></pre>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># do the thingy</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 <p>[Summary of analysis]</p>
 </section>
 </section>
