@@ -26,7 +26,7 @@ editor: visual
 ```{r}
 # load and clean data
 ```
-
+data <- load.csv(career_change_prediction_dataset.csv
 \[Quick summary of cleaning\]
 
 ## Summary Statistics
