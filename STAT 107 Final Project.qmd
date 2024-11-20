@@ -1,26 +1,76 @@
 ---
 title: "STAT 107 Final Project"
+author: "Ash Mansour, Jenny Zhang, Adam Rui, Richard Zhou"
 format: html
 editor: visual
 ---
 
-## Quarto
+# Introduction
 
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+## Objective
 
-## Running Code
+\[Describe purpose of analysis and the dataset\]
 
-When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+## Dataset Overview
+
+-   Source: \[Source\]
+
+-   Description: \[Key attributes of dataset\]
+
+-   Variables: \[Describe variables/columns\]
+
+# Data Preparation
+
+## Cleaning the Data
 
 ```{r}
-1 + 1
+# load and clean data
 ```
 
-You can add options to executable code like this
+\[Quick summary of cleaning\]
+
+## Summary Statistics
 
 ```{r}
-#| echo: false
-2 * 2
+# summary()
 ```
 
-The `echo: false` option disables the printing of code (only output is displayed).
+\[Maybe a quick summary if anything interesting? if not, not important\]
+
+# Data Visualization
+
+## Analysis #1 (REPLACE WITH APPROPRIATE NAME)
+
+```{r}
+# do the thingy
+```
+
+\[Summary of analysis\]
+
+## Analysis #2 (REPLACE WITH APPROPRIATE NAME)
+
+```{r} # do the thingy}
+```
+
+\[Summary of analysis\]
+
+## Analysis #3 (REPLACE WITH APPROPRIATE NAME)
+
+```{r} # do the thingy}
+```
+
+\[Summary of analysis\]
+
+# Key Findings and Summary
+
+## Findings:
+
+-   \[Quick summary of findings from analysis #1\]
+
+-   \[Quick summary of findings from analysis #2\]
+
+-   \[Quick summary of findings from analysis #3\]
+
+## Summary:
+
+\[Summary of entire project\]
