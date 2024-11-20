@@ -15,7 +15,7 @@ editor: visual
 
 ### Description (Source: [kaggle.com](https://www.kaggle.com/datasets/jahnavipaliwal/field-of-study-vs-occupation)):
 
-This dataset of over 30,000 entries of 22 attributes regarding each individual's personal details, job satisfaction, and more, provides excellent insight into the reasons individuals change careers. The dataset focuses on the possible sources of influence that could push someone to both change careers, and also to stay in one.
+This dataset of over 30,000 entries of 22 attributes regarding each individual's personal details, job satisfaction, and more, provides excelle push someone to both change careers, and also to stay in one.
 
 # Data Preparation
 
@@ -45,7 +45,6 @@ colnames(data) <- c("field_of_study",              # categorical string: field o
 ```
 
 Although many attributes are very useful, given that this analysis won't require all 22 of them, there's no need to include each and every one. We also changed each variable name to better fit common naming conventions, and to better clarify their purpose.
-
 
 ## Summary Statistics
 
