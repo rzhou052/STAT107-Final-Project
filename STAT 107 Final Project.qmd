@@ -46,7 +46,6 @@ colnames(data) <- c("field_of_study",              # categorical string: field o
 
 Although many attributes are very useful, given that this analysis won't require all 22 of them, there's no need to include each and every one. We also changed each variable name to better fit common naming conventions, and to better clarify their purpose.
 
-
 ## Summary Statistics
 
 ```{r}
@@ -65,10 +64,31 @@ Although many attributes are very useful, given that this analysis won't require
 
 \[Summary of analysis\]
 
-## Analysis #2 (REPLACE WITH APPROPRIATE NAME)
+## Analysis #2 Effect of Family Influence and Gender on Job Satisfaction
 
 ```{r}
-# do the thingy
+
+  #chi square test on variables gender and job satisfaction
+  
+  table_gender_satisfaction <- table(data$gender, data$job_satisfaction)
+  chisq_gender_satisfaction <- chisq.test(table_gender_satisfaction)
+  print(chisq_gender_satisfaction)
+  
+  #chi square test on variables family influence and jobs satisfaction
+
+  table_family_satisfaction <- table(data$family_influence, data$job_satisfaction)
+  chisq_family_satisfaction <- chisq.test(table_family_satisfaction)
+  print(chisq_family_satisfaction)
+  
+  #linear regression on combination of gender and famoly influence on job satisfaction
+  
+  data$gender <- as.factor(data$gender)
+data$family_influence <- factor(data$family_influence, levels = c("Low", "Medium", "High"))
+
+# Linear regression model predicting job satisfaction (continuous)
+model <- lm(job_satisfaction ~ gender + family_influence + age + years_experience + salary + job_security + work_life_balance, data = data)
+summary(model)
+  
 ```
 
 \[Summary of analysis\]
