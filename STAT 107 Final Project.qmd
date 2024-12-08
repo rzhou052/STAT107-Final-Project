@@ -85,7 +85,19 @@ Although many attributes are very useful, given that this analysis won't require
   # correlation based on job satisfaction
   correlation_results <- cor(data_clean[, correlation_vars], data_clean$Job.Satisfaction, use = "complete.obs")
   print("Correlation Results:")
-  print(correlation_results)
+  
+  #make table
+  # Calculate the correlation results with complete observations
+  correlation_results <- cor(data_clean[, correlation_vars], data_clean$Job.Satisfaction, use = "complete.obs")
+
+
+  correlation_table <- data.frame(Variable = rownames(correlation_results),
+                    Correlation = as.vector(correlation_results))
+  
+  
+  print("Correlation Table:")
+  print(correlation_table)
+
   
   # significance to our correlaTion values from above?
   correlation_test_results <- lapply(correlation_vars, function(var) {
@@ -109,7 +121,6 @@ Although many attributes are very useful, given that this analysis won't require
     print(chi_square_result)
   }
   
-
   
 
 
