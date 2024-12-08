@@ -64,7 +64,7 @@ Although many attributes are very useful, given that this analysis won't require
 
 \[Summary of analysis\]
 
-## Analysis #2 Effect of Family Influence and Gender on Job Satisfaction
+## Analysis #2 Factors Influencing Job Satisfaction
 
 ```{r}
 
