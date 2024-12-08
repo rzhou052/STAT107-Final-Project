@@ -92,7 +92,7 @@ Although many attributes are very useful, given that this analysis won't require
 
 
   correlation_table <- data.frame(Variable = rownames(correlation_results),
-                    Correlation = as.vector(correlation_results))
+                       Correlation = as.vector(correlation_results))
   
   
   print("Correlation Table:")
@@ -121,6 +121,26 @@ Although many attributes are very useful, given that this analysis won't require
     print(chi_square_result)
   }
   
+    #linear regression time..
+  
+  model <- lm(Job.Satisfaction ~ Gender + Family.Influence + Work.Life.Balance + Job.Security +   Salary, data = data_clean)
+  model_summary <- summary(model)
+  print("Linear Regression Summary:")
+  print(model_summary)
+  
+  model_tidy <- tidy(model)
+  print("Linear Model Output:")
+  print(model_tidy)
+  
+  # lOoking at job satisfaction vs changing occupation
+  
+    ggplot(data_clean, aes(x = Likely.to.Change.Occupation, y = Job.Satisfaction)) +
+    geom_point(alpha = 0.5) +
+    geom_smooth(method = "lm", se = FALSE, color = "tan1") +
+    ggtitle("Job Satisfaction vs Likelihood of Changing Occupation") +
+    xlab("Likelihood of Changing Occupation") +
+    ylab("Job Satisfaction") +
+    theme_linedraw()
   
 
 
