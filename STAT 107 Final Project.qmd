@@ -87,7 +87,7 @@ Although many attributes are very useful, given that this analysis won't require
   print("Correlation Results:")
   
   #make table
-  # Calculate the correlation results with complete observations
+  
   correlation_results <- cor(data_clean[, correlation_vars], data_clean$Job.Satisfaction, use = "complete.obs")
 
 
@@ -146,7 +146,11 @@ Although many attributes are very useful, given that this analysis won't require
 
 ```
 
-\[Summary of analysis\]
+From our correlation analysis results where we look at job satisfaction rates being compared against numerical variables work life balance, job security, salary, and years of experience, we can see that there is a near zero correlation, compared to the correlation of likelihood of changing occupations. Job satisfaction and likelihood of changing occupations has a strong negative correlation of -0.5955501, whereas the other variables have a correlation of around -0.006 to 0.003, which is relatively weak. The negative correlation between job satisfaction and likelihood of changing occupations tells us that the more unsatisfied one is with there job, the more likely they are to consider changing occupations, which is a realistic relation.
+
+Even when looking at the p values that we obtain from the correlation testing, changing occupations has the most statistically significant p value of \< 2.2e-16, which further backs up our negative correlation with job satisfaction. Other variables all have p values above 0.05, disproving their significance in regards to job satisfaction.
+
+When looking at categorical variables field of study, industry growth rate, and family influence, our chi square tests did mostly to approve of the lack of significant association between those variables and job satisfaction as p values among these variable were above our significant value of 0.05.
 
 ## Analysis #3 (REPLACE WITH APPROPRIATE NAME)
 
