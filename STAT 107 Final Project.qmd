@@ -68,27 +68,51 @@ Although many attributes are very useful, given that this analysis won't require
 
 ```{r}
 
-  #chi square test on variables gender and job satisfaction
-  
-  table_gender_satisfaction <- table(data$gender, data$job_satisfaction)
-  chisq_gender_satisfaction <- chisq.test(table_gender_satisfaction)
-  print(chisq_gender_satisfaction)
-  
-  #chi square test on variables family influence and jobs satisfaction
 
-  table_family_satisfaction <- table(data$family_influence, data$job_satisfaction)
-  chisq_family_satisfaction <- chisq.test(table_family_satisfaction)
-  print(chisq_family_satisfaction)
+  library(dplyr)
+  library(ggplot2)
+  library(caret)
+  library(broom)
+  library(ggthemes)
   
-  #linear regression on combination of gender and famoly influence on job satisfaction
-  
-  data$gender <- as.factor(data$gender)
-data$family_influence <- factor(data$family_influence, levels = c("Low", "Medium", "High"))
 
-# Linear regression model predicting job satisfaction (continuous)
-model <- lm(job_satisfaction ~ gender + family_influence + age + years_experience + salary + job_security + work_life_balance, data = data)
-summary(model)
+  data <- read.csv("~/Downloads/stat107/107final/data/career.csv")
   
+  
+  # looking at these correlation variables
+  correlation_vars <- c("Work.Life.Balance", "Salary", "Job.Security", "Years.of.Experience", "Likely.to.Change.Occupation")
+  
+  # correlation based on job satisfaction
+  correlation_results <- cor(data_clean[, correlation_vars], data_clean$Job.Satisfaction, use = "complete.obs")
+  print("Correlation Results:")
+  print(correlation_results)
+  
+  # significance to our correlaTion values from above?
+  correlation_test_results <- lapply(correlation_vars, function(var) {
+    cor.test(data_clean[[var]], data_clean$Job.Satisfaction)
+  })
+  
+
+  print("Correlation Significance Test Results:")
+  for (i in seq_along(correlation_vars)) {
+    var <- correlation_vars[i]
+    print(paste("Correlation test for", var))
+    print(correlation_test_results[[i]])
+  }
+  
+  # doing chi square test on non numerical/categorical variables
+  categorical_vars <- c("Field.of.Study", "Industry.Growth.Rate", "Family.Influence")
+  for (var in categorical_vars) {
+    chi_square_table <- table(data_clean[[var]], data_clean$Job.Satisfaction)
+    chi_square_result <- chisq.test(chi_square_table)
+    print(paste("Chi-square test for", var))
+    print(chi_square_result)
+  }
+  
+
+  
+
+
 ```
 
 \[Summary of analysis\]
