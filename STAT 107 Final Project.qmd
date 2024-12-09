@@ -83,7 +83,7 @@ Although many attributes are very useful, given that this analysis won't require
   
   #make table
   
-  correlation_results <- co4r(data[, correlation_vars], data$job_satisfaction, use = "complete.obs")
+  correlation_results <- cor(data[, correlation_vars], data$job_satisfaction, use = "complete.obs")
 
 
   correlation_table <- data.frame(Variable = rownames(correlation_results),
@@ -105,7 +105,7 @@ From our correlation analysis results where we look at job satisfaction rates be
 Even when looking at the p values that we obtain from the correlation testing, changing occupations has the most statistically significant p value of \< 2.2e-16, which further backs up our negative correlation with job satisfaction. Other variables all have p values above 0.05, disproving their significance in regards to job satisfaction.
 
 ```{r}
-{r} # doing chi square test on non numerical/categorical variables
+# doing chi square test on non numerical/categorical variables
   categorical_vars <- c("field_of_study", "industry_growth_rate", "family_influence")
   for (var in categorical_vars) {
     chi_square_table <- table(data[[var]], data$job_satisfaction)
