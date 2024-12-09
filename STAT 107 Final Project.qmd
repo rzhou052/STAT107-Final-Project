@@ -77,12 +77,12 @@ Although many attributes are very useful, given that this analysis won't require
   correlation_vars <- c("work_life_balance", "salary", "job_security", "years_experience", "likely_to_change_occupation")
   
   # correlation based on job satisfaction
-  correlation_results <- cor(data[, correlation_vars], data_clean$job_satisfaction, use = "complete.obs")
+  correlation_results <- cor(data[, correlation_vars], data$job_satisfaction, use = "complete.obs")
   print("Correlation Results:")
   
   #make table
   
-  correlation_results <- cor(data[, correlation_vars], data_clean$job_satisfaction, use = "complete.obs")
+  correlation_results <- cor(data[, correlation_vars], data$job_satisfaction, use = "complete.obs")
 
 
   correlation_table <- data.frame(Variable = rownames(correlation_results),
