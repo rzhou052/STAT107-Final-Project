@@ -46,7 +46,6 @@ colnames(data) <- c("field_of_study",              # categorical string: field o
 
 Although many attributes are very useful, given that this analysis won't require all 22 of them, there's no need to include each and every one. We also changed each variable name to better fit common naming conventions, and to better clarify their purpose.
 
-
 ## Summary Statistics
 
 ```{r}
