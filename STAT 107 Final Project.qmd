@@ -64,31 +64,25 @@ Although many attributes are very useful, given that this analysis won't require
 
 \[Summary of analysis\]
 
-## Analysis #2 Factors Influencing Job Satisfaction
+## Analysis #2 Factors Influencing Job Satisfaction Using Chi Square Testing and Linear Regression
 
 ```{r}
 
-
-  library(dplyr)
-  library(ggplot2)
   library(caret)
-  library(broom)
   library(ggthemes)
   
 
-  data <- read.csv("~/Downloads/stat107/107final/data/career.csv")
-  
-  
+
   # looking at these correlation variables
-  correlation_vars <- c("Work.Life.Balance", "Salary", "Job.Security", "Years.of.Experience", "Likely.to.Change.Occupation")
+  correlation_vars <- c("work_life_balance", "salary", "job_security", "years_experience", "likely_to_change_occupation")
   
   # correlation based on job satisfaction
-  correlation_results <- cor(data_clean[, correlation_vars], data_clean$Job.Satisfaction, use = "complete.obs")
+  correlation_results <- cor(data[, correlation_vars], data_clean$job_satisfaction, use = "complete.obs")
   print("Correlation Results:")
   
   #make table
   
-  correlation_results <- cor(data_clean[, correlation_vars], data_clean$Job.Satisfaction, use = "complete.obs")
+  correlation_results <- cor(data[, correlation_vars], data_clean$job_satisfaction, use = "complete.obs")
 
 
   correlation_table <- data.frame(Variable = rownames(correlation_results),
@@ -101,7 +95,7 @@ Although many attributes are very useful, given that this analysis won't require
   
   # significance to our correlaTion values from above?
   correlation_test_results <- lapply(correlation_vars, function(var) {
-    cor.test(data_clean[[var]], data_clean$Job.Satisfaction)
+    cor.test(data[[var]], data$job_satisfaction)
   })
   
 
@@ -113,9 +107,9 @@ Although many attributes are very useful, given that this analysis won't require
   }
   
   # doing chi square test on non numerical/categorical variables
-  categorical_vars <- c("Field.of.Study", "Industry.Growth.Rate", "Family.Influence")
+  categorical_vars <- c("field_of_study", "industry_growth_rate", "family_influence")
   for (var in categorical_vars) {
-    chi_square_table <- table(data_clean[[var]], data_clean$Job.Satisfaction)
+    chi_square_table <- table(data[[var]], data$job_satisfaction)
     chi_square_result <- chisq.test(chi_square_table)
     print(paste("Chi-square test for", var))
     print(chi_square_result)
@@ -123,7 +117,7 @@ Although many attributes are very useful, given that this analysis won't require
   
     #linear regression time..
   
-  model <- lm(Job.Satisfaction ~ Gender + Family.Influence + Work.Life.Balance + Job.Security +   Salary, data = data_clean)
+  model <- lm(job_satisfaction ~ gender + family_influence + work_life_balance + job_security +   salary, data = data)
   model_summary <- summary(model)
   print("Linear Regression Summary:")
   print(model_summary)
@@ -134,7 +128,7 @@ Although many attributes are very useful, given that this analysis won't require
   
   # lOoking at job satisfaction vs changing occupation
   
-    ggplot(data_clean, aes(x = Likely.to.Change.Occupation, y = Job.Satisfaction)) +
+    ggplot(data, aes(x = likely_to_change_occupation, y = job_satisfaction)) +
     geom_point(alpha = 0.5) +
     geom_smooth(method = "lm", se = FALSE, color = "tan1") +
     ggtitle("Job Satisfaction vs Likelihood of Changing Occupation") +
