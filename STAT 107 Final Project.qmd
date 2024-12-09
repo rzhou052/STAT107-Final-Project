@@ -64,10 +64,11 @@ Although many attributes are very useful, given that this analysis won't require
 
 \[Summary of analysis\]
 
-## Analysis #2 Factors Influencing Job Satisfaction Using Chi Square Testing and Linear Regression
+## Analysis #2: Factors Influencing Job Satisfaction Using Chi Square Testing and Linear Regression
 
 ```{r}
-
+  library(tidyverse)
+  library(broom)
   library(caret)
   library(ggthemes)
   
