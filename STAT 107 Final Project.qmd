@@ -148,6 +148,14 @@ Overall, we can see that the strongest variable with the greatest correlation to
 
 # Analysis #3 - Multiple Logistic Regression Analysis - Odds ratio of career change interest
 
+# Load packages
+
+```{r}
+#install.packages("furniture")
+library(furniture) # create table, include bivariate test
+library(tidyverse)
+```
+
 ```{r}
 model1 <- glm(Career.Change.Interest ~  
                  Gender+Family.Influence
