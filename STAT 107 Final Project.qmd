@@ -83,7 +83,7 @@ Although many attributes are very useful, given that this analysis won't require
   
   #make table
   
-  correlation_results <- co4r(data[, correlation_vars], data$job_satisfaction, use = "complete.obs")
+  correlation_results <- cor(data[, correlation_vars], data$job_satisfaction, use = "complete.obs")
 
 
   correlation_table <- data.frame(Variable = rownames(correlation_results),
@@ -105,7 +105,7 @@ From our correlation analysis results where we look at job satisfaction rates be
 Even when looking at the p values that we obtain from the correlation testing, changing occupations has the most statistically significant p value of \< 2.2e-16, which further backs up our negative correlation with job satisfaction. Other variables all have p values above 0.05, disproving their significance in regards to job satisfaction.
 
 ```{r}
-{r} # doing chi square test on non numerical/categorical variables
+# doing chi square test on non numerical/categorical variables
   categorical_vars <- c("field_of_study", "industry_growth_rate", "family_influence")
   for (var in categorical_vars) {
     chi_square_table <- table(data[[var]], data$job_satisfaction)
@@ -144,13 +144,102 @@ The linear regression model backs up our correlation analysis results as the y i
 
 Overall, we can see that the strongest variable with the greatest correlation to job satisfaction is likelihood of changing occupations, as shown by the correlation analysis, and linear regression model. However, data from the other variable just may not be conclusive enough for us to have a linear regression model with a stronger fit. Further analyses can bring more insight into likelihood of changing occupation can perhaps give more insight on our other variables.
 
-## Analysis #3 (REPLACE WITH APPROPRIATE NAME)
+## 
+
+# Analysis #3 - Multiple Logistic Regression Analysis - Ratio of Career Change Interest
 
 ```{r}
-# do the thingy
+#install.packages("furniture")
+library(furniture) # create table, include bivariate test
+library(tidyverse)
 ```
 
-\[Summary of analysis\]
+In the dataset, recode the `family_influence` variable as an ordered factor with levels "None", "Low", "Medium", and "High" to represent escalating family influence levels. To show particular occupations of interest, recode the `current_occupation` variable in the `data` dataset.
+
+```{r}
+data$family_influence <- factor(data$family_influence,
+                              c("None","Low","Medium","High"))
+
+data$current_occupation <- factor(data$current_occupation,
+                              c("Software Developer","Artist",
+                                "Mechanical Engineer","Business Analyst",
+                                "Lawyer","Economist","Teacher",
+                                "Doctor","Biologist"))
+```
+
+Generate a summary table of the dataset `data` with rows for variables `gender`, `family_influence`, `current_occupation`, and `job_security`. The table is split by the variable `career_change_interest`, showing grouped statistics for each level of interest. The `row_wise = TRUE` argument arranges the summary statistics row-wise, and the `test = TRUE` argument performs statistical tests (e.g., chi-squared or t-tests) to compare groups across `career_change_interest`.
+
+```{r}
+table1(data,
+       gender,family_influence,current_occupation,job_security,
+       splitby = ~career_change_interest,
+       row_wise = TRUE,
+       test = TRUE)
+```
+
+Use a logistic regression model (glm) to see how different factors affect the results. After extracting the model summary's coefficients (except from the intercept), calculate the odds ratios' (OR) 95% confidence intervals and round to two decimal places. Next, show a subset of the ORmtx data frame that includes p-values, OR, and confidence intervals.
+
+```{r}
+model1 <- glm(career_change_interest ~  
+                 gender+family_influence
+                 +current_occupation+job_security,
+                    family = binomial, data)
+coef <- summary(model1)$coef[-1,]
+CI <- round(exp(confint(model1))[-1,],2)
+OR <- round(exp(coef[,1]),2)
+p.value = round(coef[,4],4)
+ORmtx <- data.frame(OR, Lower = CI[,1], Upper=CI[,2],
+                    p.value ) 
+ORmtx$Index <- seq(1:nrow(ORmtx))
+
+ORmtx$Label <- c("Gender:Male vs. Female",
+                 "Family Influence: Low vs. None",
+                 "Family Influence: Medium vs. None",
+                 "Family Influence: High vs. None",
+                 "Current Occupation:Artist vs. Software Developer",
+                 "       Mechanical Engineer vs. Software Developer",
+                 "          Business Analyst vs. Software Developer",
+                 "                    Lawyer vs. Software Developer",
+                 "                 Economist vs. Software Developer",
+                 "                   Teacher vs. Software Developer",
+                 "                    Doctor vs. Software Developer",
+                 "                  Biologist vs. Software Developer",
+                 "Job.Security"
+                 )
+ORmtx[,c("OR","Lower","Upper","p.value" )]
+```
+
+To visualize odds ratios (ORs) with 95% confidence intervals (CIs), make a forest plot. The odds ratios are along the x-axis at points (shape = 18, size = 5) that match to indices on the y-axis. To depict the 95% confidence intervals, add horizontal error bars with lower and upper bounds.
+
+```{r}
+ggplot(ORmtx, aes(y = Index, x = OR)) +
+  geom_point(shape = 18, size = 5) +  
+  geom_errorbarh(aes(xmin = Lower, xmax = Upper), height = 0.25) +
+  geom_vline(xintercept = 1, color = "red", linetype = "dashed",  alpha = 0.5) +
+  scale_y_continuous(name = "", breaks=1:13, labels = ORmtx$Label, trans = "reverse") +
+  xlab("Odds Ratio (95% CI)") + 
+  ylab(" ") + 
+  theme_bw() +
+  theme(panel.border = element_blank(),
+        panel.background = element_blank(),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(), 
+        axis.line = element_line(colour = "black"),
+        axis.text.y = element_text(size = 12, colour = "black"),
+        axis.text.x.bottom = element_text(size = 12, colour = "black"),
+        axis.title.x = element_text(size = 12, colour = "black"))
+
+```
+
+The multiple logistic regression shows that:
+
+1.  **Gender**: no statistical evidence of assocation between gender and career change influence.
+
+2.  **Family Influence**: the odds of career change interest for those had low family influence is 0.92 times the odds of those had no family influence (95%: 0.85 to 0.99, p=0.0269). No statistical differences comparing medium or high family influences to non family influence.
+
+3.  **Current Occupation**: the odds of career change interest for biologists is 1.19 times the odds for software developers (95%CI: 1.06 to 1.33, p=0.0026). Teachers and doctors also shows trends of higher odds of career change interests comparing to software developers.The other occupations do not have very different odds of career change interest as software developers.
+
+4.  **Job Security**: Higher Job security shows somewhat lower odds of career change interest (OR=0.99 for each unit change, 95%CI: 0.98 to 1, p=0.0926).
 
 # Key Findings and Summary
 
@@ -160,7 +249,7 @@ Overall, we can see that the strongest variable with the greatest correlation to
 
 -   \[Quick summary of findings from analysis #2\]
 
--   \[Quick summary of findings from analysis #3\]
+-   Interest in changing careers seems to be significantly influenced by work and family influence, with differing results based on particular circumstances. Although they are part of the model, gender and job stability do not show statistical significance with interest in changing careers in this study.
 
 ## Summary:
 
