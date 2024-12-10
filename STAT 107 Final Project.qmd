@@ -156,7 +156,7 @@ library(furniture) # create table, include bivariate test
 library(tidyverse)
 ```
 
-Separate family influence into factors based on level, display specific occupations
+In the `data` dataset, recode the `family_influence` variable as an ordered factor with levels "None", "Low", "Medium", and "High" to represent escalating family influence levels. To show particular occupations of interest, recode the `current_occupation` variable in the `data` dataset.
 
 ```{r}
 data$family_influence <- factor(data$family_influence,
@@ -169,7 +169,7 @@ data$current_occupation <- factor(data$current_occupation,
                                 "Doctor","Biologist"))
 ```
 
-Generate summary table
+Generate a summary table of the dataset `data` with rows for variables `gender`, `family_influence`, `current_occupation`, and `job_security`. The table is split by the variable `career_change_interest`, showing grouped statistics for each level of interest. The `row_wise = TRUE` argument arranges the summary statistics row-wise, and the `test = TRUE` argument performs statistical tests (e.g., chi-squared or t-tests) to compare groups across `career_change_interest`.
 
 ```{r}
 table1(data,
@@ -179,7 +179,7 @@ table1(data,
        test = TRUE)
 ```
 
-Create a logistic regression model (glm) to analyze the influence of gender, family influence, current occupation, job security on career change interest.
+Use a logistic regression model (glm) to see how different factors affect the results. After extracting the model summary's coefficients (except from the intercept), calculate the odds ratios' (OR) 95% confidence intervals and round to two decimal places. Next, show a subset of the ORmtx data frame that includes p-values, OR, and confidence intervals.
 
 ```{r}
 model1 <- glm(career_change_interest ~  
@@ -211,7 +211,7 @@ ORmtx$Label <- c("Gender:Male vs. Female",
 ORmtx[,c("OR","Lower","Upper","p.value" )]
 ```
 
-Create a plot of the data
+To visualize odds ratios (ORs) with 95% confidence intervals (CIs), make a forest plot. The odds ratios are along the x-axis at points (shape = 18, size = 5) that match to indices on the y-axis.  To depict the 95% confidence intervals, add horizontal error bars with lower and upper bounds.
 
 ```{r}
 ggplot(ORmtx, aes(y = Index, x = OR)) +
@@ -253,7 +253,7 @@ The multiple logistic regression shows that:
 
 -   \[Quick summary of findings from analysis #2\]
 
--   \[Quick summary of findings from analysis #3\]
+-   Interest in changing careers seems to be significantly influenced by work and family influence, with differing results based on particular circumstances. Although they are part of the model, gender and job stability do not show statistical significance with interest in changing careers in this study.
 
 ## Summary:
 
