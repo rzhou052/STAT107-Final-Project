@@ -89,7 +89,7 @@ data %>% group_by(gender) %>% summarize(
 
 data %>% ggplot(aes(x = job_satisfaction)) +
   geom_histogram(aes(fill = gender)) +
-  facet_grid(cols = vars(gender)) 
+  facet_grid(cols = vars(gender)) +scale_x_continuous(breaks = seq(0, 10, by = 1))
 
 data %>% ggplot(aes(x = career_changes)) +
   geom_histogram(aes(fill = gender)) +
@@ -148,6 +148,8 @@ t.test(job_satisfaction_m,job_satisfaction_w,alternative = "two.sided",conf.leve
 t.test(career_changes_m,career_changes_w,alternative = "two.sided",conf.level = 1-alpha)
 t.test(career_change_interest_m,career_change_interest_w,alternative = "two.sided",conf.level = 1-alpha)
 ```
+
+The goal of this analysis was to determine if there was a gendered difference affecting desire to leave jobs based on the hypothesis that women may have a harder time leaving jobs due to discrimination in hiring processes. Because we are looking to analyse two populations (men and women) and examine differences in their means, a t-test was selected. The data shows a weak difference between the selected variables: job satisfaction, the number of previous career changes, and current interest in a career change. These variables were selected on the basis that they seemed the most likely to be able to predict differences in willingness to move between jobs, with job satisfaction and career change interest predicting current willingness to look for a job and previous career changes predicting if there were differences overall. Looking at the raw data, job satisfaction showed more women had a job satisfaction that was around 5, and men appear to have been more likely to be on either end of the spectrum, which could result in an overall mean being similar. Even this pattern is subtle though, and likely would also be statistically insignificant. The other two variables related to career changes were less varied, and were very close in mean in both men and women.
 
 ## Analysis #2: Factors Influencing Job Satisfaction Using Chi Square Testing and Linear Regression
 
