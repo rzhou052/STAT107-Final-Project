@@ -61,9 +61,6 @@ Although many attributes are very useful, given that this analysis won't require
 ## Analysis #1 Two-Sided, Two-Sample t-test
 
 ```{r}
-# do the thingy
-library("tidyverse")
-
 #checking parameters and creating a summary. The chosen variables are the level of job satisfaction, the number of career changes, and the stated interest in a career change. 
 data %>% group_by(gender) %>% summarize(
   # separating by gender to examine differences in ability to move between jobs  
@@ -232,21 +229,9 @@ The linear regression model backs up our correlation analysis results as the y i
 
 Overall, we can see that the strongest variable with the greatest correlation to job satisfaction is likelihood of changing occupations, as shown by the correlation analysis, and linear regression model. However, data from the other variable just may not be conclusive enough for us to have a linear regression model with a stronger fit. Further analyses can bring more insight into likelihood of changing occupation can perhaps give more insight on our other variables.
 
-<<<<<<< HEAD
-# Analysis #3 - Multiple Logistic Regression Analysis - Ratio of Career Change Interest
-
-```{r}
-#install.packages("furniture")
-library(furniture) # create table, include bivariate test
-library(tidyverse)
-```
-
-In the dataset, recode the `family_influence` variable as an ordered factor with levels "None", "Low", "Medium", and "High" to represent escalating family influence levels. To show particular occupations of interest, recode the `current_occupation` variable in the `data` dataset.
-=======
 ## Analysis #3 - Multiple Logistic Regression Analysis - Ratio of Career Change Interest
 
 In the dataset, code the `family_influence` variable as an ordered factor with levels "None", "Low", "Medium", and "High" to represent escalating family influence levels. To show particular occupations of interest, code the `current_occupation` variable in the `data` dataset.
->>>>>>> 2b7a921e3000b90455968d612b8002f81c68188b
 
 ```{r}
 data$family_influence <- factor(data$family_influence,
