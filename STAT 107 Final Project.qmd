@@ -146,9 +146,7 @@ Overall, we can see that the strongest variable with the greatest correlation to
 
 ## 
 
-# Analysis #3 - Multiple Logistic Regression Analysis - Odds ratio of career change interest
-
-# Load packages
+# Analysis #3 - Multiple Logistic Regression Analysis - Ratio of Career Change Interest
 
 ```{r}
 #install.packages("furniture")
@@ -156,7 +154,7 @@ library(furniture) # create table, include bivariate test
 library(tidyverse)
 ```
 
-In the `data` dataset, recode the `family_influence` variable as an ordered factor with levels "None", "Low", "Medium", and "High" to represent escalating family influence levels. To show particular occupations of interest, recode the `current_occupation` variable in the `data` dataset.
+In the dataset, recode the `family_influence` variable as an ordered factor with levels "None", "Low", "Medium", and "High" to represent escalating family influence levels. To show particular occupations of interest, recode the `current_occupation` variable in the `data` dataset.
 
 ```{r}
 data$family_influence <- factor(data$family_influence,
@@ -211,7 +209,7 @@ ORmtx$Label <- c("Gender:Male vs. Female",
 ORmtx[,c("OR","Lower","Upper","p.value" )]
 ```
 
-To visualize odds ratios (ORs) with 95% confidence intervals (CIs), make a forest plot. The odds ratios are along the x-axis at points (shape = 18, size = 5) that match to indices on the y-axis.  To depict the 95% confidence intervals, add horizontal error bars with lower and upper bounds.
+To visualize odds ratios (ORs) with 95% confidence intervals (CIs), make a forest plot. The odds ratios are along the x-axis at points (shape = 18, size = 5) that match to indices on the y-axis. To depict the 95% confidence intervals, add horizontal error bars with lower and upper bounds.
 
 ```{r}
 ggplot(ORmtx, aes(y = Index, x = OR)) +
@@ -233,17 +231,15 @@ ggplot(ORmtx, aes(y = Index, x = OR)) +
 
 ```
 
-\[Summary of analysis\]
-
 The multiple logistic regression shows that:
 
 1.  **Gender**: no statistical evidence of assocation between gender and career change influence.
 
-2.  **Family influence**: the odds of career change interest for those had low family influence is 0.92 times the odds of those had no family influence (95%: 0.85 to 0.99, p=0.0269). No statistical differences comparing medium or high family influences to non family influence.
+2.  **Family Influence**: the odds of career change interest for those had low family influence is 0.92 times the odds of those had no family influence (95%: 0.85 to 0.99, p=0.0269). No statistical differences comparing medium or high family influences to non family influence.
 
-3.  **Current occupation**: the odds of career change interest for biologists is 1.19 times the odds for software developers (95%CI: 1.06 to 1.33, p=0.0026). Teachers and doctors also shows trends of higher odds of career change interests comparing to software developers.The other occupations do not have very different odds of career change interest as software developers.
+3.  **Current Occupation**: the odds of career change interest for biologists is 1.19 times the odds for software developers (95%CI: 1.06 to 1.33, p=0.0026). Teachers and doctors also shows trends of higher odds of career change interests comparing to software developers.The other occupations do not have very different odds of career change interest as software developers.
 
-4.  **Job security**: Higher Job security shows somewhat lower odds of career change interest (OR=0.99 for each unit change, 95%CI: 0.98 to 1, p=0.0926).
+4.  **Job Security**: Higher Job security shows somewhat lower odds of career change interest (OR=0.99 for each unit change, 95%CI: 0.98 to 1, p=0.0926).
 
 # Key Findings and Summary
 
