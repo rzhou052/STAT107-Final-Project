@@ -157,15 +157,10 @@ library(tidyverse)
 ```
 
 ```{r}
-Data <- read.csv("data/career.csv")
-head(Data[,c("Career.Change.Interest","Gender", "Family.Influence","Current.Occupation","Job.Security")])
-```
-
-```{r}
-Data$Family.Influence <- factor(Data$Family.Influence,
+data$Family.Influence <- factor(data$Family.Influence,
                               c("None","Low","Medium","High"))
 
-Data$Current.Occupation <- factor(Data$Current.Occupation,
+data$Current.Occupation <- factor(data$Current.Occupation,
                               c("Software Developer","Artist",
                                 "Mechanical Engineer","Business Analyst",
                                 "Lawyer","Economist","Teacher",
@@ -173,7 +168,7 @@ Data$Current.Occupation <- factor(Data$Current.Occupation,
 ```
 
 ```{r}
-table1(Data,
+table1(data,
        Gender,Family.Influence,Current.Occupation,Job.Security,
        splitby = ~Career.Change.Interest,
        row_wise = TRUE,
@@ -184,7 +179,7 @@ table1(Data,
 model1 <- glm(Career.Change.Interest ~  
                  Gender+Family.Influence
                  +Current.Occupation+Job.Security,
-                    family = binomial, Data)
+                    family = binomial, data)
 coef <- summary(model1)$coef[-1,]
 CI <- round(exp(confint(model1))[-1,],2)
 OR <- round(exp(coef[,1]),2)
