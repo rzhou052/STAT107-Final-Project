@@ -9,7 +9,7 @@ editor: visual
 
 ## Objective
 
-\[Describe purpose of analysis and the dataset\]
+The objective of this analysis is to explore the factors that may or may not hold influence over an individual's likelihood to change careers, focusing on variables such as job satisfaction, work-life balance, salary, family influence, and current occupation.
 
 ## Dataset Overview
 
@@ -18,6 +18,16 @@ editor: visual
 This dataset of over 30,000 entries of 22 attributes regarding each individual's personal details, job satisfaction, and more, provides excellent insight into the reasons individuals change careers. The dataset focuses on the possible sources of influence that could push someone to both change careers, and also to stay in one.
 
 # Data Preparation
+
+## Loading Packages
+
+```{r}
+library(tidyverse)
+library(broom)
+library(caret)
+library(ggthemes)
+library(furniture)
+```
 
 ## Cleaning the Data
 
@@ -46,15 +56,7 @@ colnames(data) <- c("field_of_study",              # categorical string: field o
 
 Although many attributes are very useful, given that this analysis won't require all 22 of them, there's no need to include each and every one. We also changed each variable name to better fit common naming conventions, and to better clarify their purpose.
 
-## Summary Statistics
-
-```{r}
-# summary(data)
-```
-
-\[Maybe a quick summary if anything interesting? if not, not important\]
-
-# Data Visualization
+# Data Analysis/Visualization
 
 ## Analysis #1 (REPLACE WITH APPROPRIATE NAME)
 
@@ -67,13 +69,6 @@ Although many attributes are very useful, given that this analysis won't require
 ## Analysis #2: Factors Influencing Job Satisfaction Using Chi Square Testing and Linear Regression
 
 ```{r}
-  library(tidyverse)
-  library(broom)
-  library(caret)
-  library(ggthemes)
-  
-
-
   # looking at these correlation variables
   correlation_vars <- c("work_life_balance", "salary", "job_security", "years_experience", "likely_to_change_occupation")
   
@@ -119,7 +114,6 @@ When looking at categorical variables field of study, industry growth rate, and 
 
 ```{r}
 #linear regression time..
-  
   model <- lm(job_satisfaction ~ gender + family_influence + work_life_balance + job_security +   salary, data = data)
   model_summary <- summary(model)
   print("Linear Regression Summary:")
@@ -144,17 +138,9 @@ The linear regression model backs up our correlation analysis results as the y i
 
 Overall, we can see that the strongest variable with the greatest correlation to job satisfaction is likelihood of changing occupations, as shown by the correlation analysis, and linear regression model. However, data from the other variable just may not be conclusive enough for us to have a linear regression model with a stronger fit. Further analyses can bring more insight into likelihood of changing occupation can perhaps give more insight on our other variables.
 
-## 
+## Analysis #3 - Multiple Logistic Regression Analysis - Ratio of Career Change Interest
 
-# Analysis #3 - Multiple Logistic Regression Analysis - Ratio of Career Change Interest
-
-```{r}
-#install.packages("furniture")
-library(furniture) # create table, include bivariate test
-library(tidyverse)
-```
-
-In the dataset, recode the `family_influence` variable as an ordered factor with levels "None", "Low", "Medium", and "High" to represent escalating family influence levels. To show particular occupations of interest, recode the `current_occupation` variable in the `data` dataset.
+In the dataset, code the `family_influence` variable as an ordered factor with levels "None", "Low", "Medium", and "High" to represent escalating family influence levels. To show particular occupations of interest, code the `current_occupation` variable in the `data` dataset.
 
 ```{r}
 data$family_influence <- factor(data$family_influence,
@@ -233,11 +219,11 @@ ggplot(ORmtx, aes(y = Index, x = OR)) +
 
 The multiple logistic regression shows that:
 
-1.  **Gender**: no statistical evidence of assocation between gender and career change influence.
+1.  **Gender**: There is no statistical evidence of association between gender and career change influence.
 
-2.  **Family Influence**: the odds of career change interest for those had low family influence is 0.92 times the odds of those had no family influence (95%: 0.85 to 0.99, p=0.0269). No statistical differences comparing medium or high family influences to non family influence.
+2.  **Family Influence**: The odds of career change interest for those had low family influence is 0.92 times the odds of those had no family influence (95%: 0.85 to 0.99, p=0.0269). No statistical differences comparing medium or high family influences to non family influence.
 
-3.  **Current Occupation**: the odds of career change interest for biologists is 1.19 times the odds for software developers (95%CI: 1.06 to 1.33, p=0.0026). Teachers and doctors also shows trends of higher odds of career change interests comparing to software developers.The other occupations do not have very different odds of career change interest as software developers.
+3.  **Current Occupation**: The odds of career change interest for biologists is 1.19 times the odds for software developers (95%CI: 1.06 to 1.33, p=0.0026). Teachers and doctors also shows trends of higher odds of career change interests comparing to software developers.The other occupations do not have very different odds of career change interest as software developers.
 
 4.  **Job Security**: Higher Job security shows somewhat lower odds of career change interest (OR=0.99 for each unit change, 95%CI: 0.98 to 1, p=0.0926).
 
@@ -245,9 +231,15 @@ The multiple logistic regression shows that:
 
 ## Findings:
 
+### Analysis #1:
+
 -   \[Quick summary of findings from analysis #1\]
 
--   \[Quick summary of findings from analysis #2\]
+### Analysis #2:
+
+-   Job satisfaction seems to have a strongest correlation with the likelihood of changing occupations, while other factors had far weaker relationships.
+
+### Analysis #3:
 
 -   Interest in changing careers seems to be significantly influenced by work and family influence, with differing results based on particular circumstances. Although they are part of the model, gender and job stability do not show statistical significance with interest in changing careers in this study.
 
