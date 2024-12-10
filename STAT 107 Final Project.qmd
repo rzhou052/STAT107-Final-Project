@@ -99,6 +99,13 @@ data %>% ggplot(aes(x = career_change_interest)) +
   geom_histogram(aes(fill = gender)) +
   facet_grid(cols = vars(gender)) 
 
+
+
+```
+
+The goal of this analysis was to determine if there was a gendered difference affecting desire to leave jobs based on the hypothesis that women may have a harder time leaving jobs due to discrimination in hiring processes. Because we are looking to analyse two populations (men and women) and examine differences in their means, a t-test was selected. The data shows a weak difference between the selected variables: job satisfaction, the number of previous career changes, and current interest in a career change. These variables were selected on the basis that they seemed the most likely to be able to predict differences in willingness to move between jobs, with job satisfaction and career change interest predicting current willingness to look for a job and previous career changes predicting if there were differences overall.
+
+```{r}
 #plotting bar graphs of data to examine differences due to gender visually
 
 data %>% ggplot(aes(x = job_satisfaction)) +
@@ -132,6 +139,11 @@ data %>% ggplot(aes(x = career_change_interest)) +
     title = "Interest in a Change of Career by Gender")
 
 
+```
+
+Looking at the raw data, job satisfaction showed more women had a job satisfaction that was around 5, and men appear to have been more likely to be on either end of the spectrum, which could result in an overall mean being similar. Even this pattern is subtle though, and likely would also be statistically insignificant. The other two variables related to career changes were less varied, and were very close in mean in both men and women.
+
+```{r}
 #creating vectors from each metric separated by gender to compare by t-test
 
 job_satisfaction_m <- data %>% filter(gender == "Male") %>% select(job_satisfaction)
@@ -148,8 +160,6 @@ t.test(job_satisfaction_m,job_satisfaction_w,alternative = "two.sided",conf.leve
 t.test(career_changes_m,career_changes_w,alternative = "two.sided",conf.level = 1-alpha)
 t.test(career_change_interest_m,career_change_interest_w,alternative = "two.sided",conf.level = 1-alpha)
 ```
-
-The goal of this analysis was to determine if there was a gendered difference affecting desire to leave jobs based on the hypothesis that women may have a harder time leaving jobs due to discrimination in hiring processes. Because we are looking to analyse two populations (men and women) and examine differences in their means, a t-test was selected. The data shows a weak difference between the selected variables: job satisfaction, the number of previous career changes, and current interest in a career change. These variables were selected on the basis that they seemed the most likely to be able to predict differences in willingness to move between jobs, with job satisfaction and career change interest predicting current willingness to look for a job and previous career changes predicting if there were differences overall. Looking at the raw data, job satisfaction showed more women had a job satisfaction that was around 5, and men appear to have been more likely to be on either end of the spectrum, which could result in an overall mean being similar. Even this pattern is subtle though, and likely would also be statistically insignificant. The other two variables related to career changes were less varied, and were very close in mean in both men and women.
 
 Interestingly, the p-value of career change interest was smallest, although still very far from significant. More women than men showed interest in a career change, which could be interpreted as women being more likely to move careers in the future. In combination with the number of women having changed careers twice being greater than the number of men who have changed careers twice, this is interesting. However, the data that is present here indicates that this difference is due to random chance and not a statistically significant observable difference in job satisfaction, number of career changes, or indication of interest in a new career change between men and women.
 
