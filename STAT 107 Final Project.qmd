@@ -62,10 +62,6 @@ Although many attributes are very useful, given that this analysis won't require
 # do the thingy
 library("tidyverse")
 
-#adding a column that converts gender data into a True/False data with Male = True to allow later analyses with gender 
-data$gendernum <- ifelse(data$gender == "Male", T,F)
-
-
 #checking parameters and creating a summary. The chosen variables are the level of job satisfaction, the number of career changes, and the stated interest in a career change. 
 data %>% group_by(gender) %>% summarize(
   # separating by gender to examine differences in ability to move between jobs  
