@@ -157,10 +157,10 @@ library(tidyverse)
 ```
 
 ```{r}
-data$Family.Influence <- factor(data$Family.Influence,
+data$family_influence <- factor(data$family_influence,
                               c("None","Low","Medium","High"))
 
-data$Current.Occupation <- factor(data$Current.Occupation,
+data$current_occupation <- factor(data$current_occupation,
                               c("Software Developer","Artist",
                                 "Mechanical Engineer","Business Analyst",
                                 "Lawyer","Economist","Teacher",
@@ -169,16 +169,16 @@ data$Current.Occupation <- factor(data$Current.Occupation,
 
 ```{r}
 table1(data,
-       Gender,Family.Influence,Current.Occupation,Job.Security,
-       splitby = ~Career.Change.Interest,
+       gender,family_influence,current_occupation,job_security,
+       splitby = ~career_change_interest,
        row_wise = TRUE,
        test = TRUE)
 ```
 
 ```{r}
-model1 <- glm(Career.Change.Interest ~  
-                 Gender+Family.Influence
-                 +Current.Occupation+Job.Security,
+model1 <- glm(career_change_interest ~  
+                 gender+family_influence
+                 +current_occupation+job_security,
                     family = binomial, data)
 coef <- summary(model1)$coef[-1,]
 CI <- round(exp(confint(model1))[-1,],2)
