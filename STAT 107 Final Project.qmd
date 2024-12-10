@@ -156,6 +156,8 @@ library(furniture) # create table, include bivariate test
 library(tidyverse)
 ```
 
+Separate family influence into factors based on level, display specific occupations
+
 ```{r}
 data$family_influence <- factor(data$family_influence,
                               c("None","Low","Medium","High"))
@@ -167,6 +169,8 @@ data$current_occupation <- factor(data$current_occupation,
                                 "Doctor","Biologist"))
 ```
 
+Generate summary table
+
 ```{r}
 table1(data,
        gender,family_influence,current_occupation,job_security,
@@ -174,6 +178,8 @@ table1(data,
        row_wise = TRUE,
        test = TRUE)
 ```
+
+Create a logistic regression model (glm) to analyze the influence of gender, family influence, current occupation, job security on career change interest.
 
 ```{r}
 model1 <- glm(career_change_interest ~  
@@ -204,6 +210,8 @@ ORmtx$Label <- c("Gender:Male vs. Female",
                  )
 ORmtx[,c("OR","Lower","Upper","p.value" )]
 ```
+
+Create a plot of the data
 
 ```{r}
 ggplot(ORmtx, aes(y = Index, x = OR)) +
