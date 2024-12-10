@@ -151,27 +151,40 @@ Overall, we can see that the strongest variable with the greatest correlation to
 # Load packages
 
 ```{r}
+#install.packages("furniture")
 library(furniture) # create table, include bivariate test
 library(tidyverse)
 ```
 
 ```{r}
-data$Family.Influence <- factor(data$Family.Influence,
+Data <- read.csv("data/career.csv")
+head(Data[,c("Career.Change.Interest","Gender", "Family.Influence","Current.Occupation","Job.Security")])
+```
+
+```{r}
+Data$Family.Influence <- factor(Data$Family.Influence,
                               c("None","Low","Medium","High"))
 
-data$Current.Occupation <- factor(data$Current.Occupation,
+Data$Current.Occupation <- factor(Data$Current.Occupation,
                               c("Software Developer","Artist",
                                 "Mechanical Engineer","Business Analyst",
                                 "Lawyer","Economist","Teacher",
                                 "Doctor","Biologist"))
 ```
 
+```{r}
+table1(Data,
+       Gender,Family.Influence,Current.Occupation,Job.Security,
+       splitby = ~Career.Change.Interest,
+       row_wise = TRUE,
+       test = TRUE)
+```
 
 ```{r}
 model1 <- glm(Career.Change.Interest ~  
                  Gender+Family.Influence
                  +Current.Occupation+Job.Security,
-                    family = binomial, data)
+                    family = binomial, Data)
 coef <- summary(model1)$coef[-1,]
 CI <- round(exp(confint(model1))[-1,],2)
 OR <- round(exp(coef[,1]),2)
