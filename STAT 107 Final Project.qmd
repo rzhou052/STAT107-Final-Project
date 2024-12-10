@@ -57,7 +57,7 @@ data
 
 # Data Visualization
 
-## Analysis #1 (REPLACE WITH APPROPRIATE NAME)
+## Analysis #1 Two-Sided, Two-Sample t-test
 
 ```{r}
 # do the thingy
@@ -100,7 +100,8 @@ data %>% ggplot(aes(x = career_change_interest)) +
 
 data %>% ggplot(aes(x = job_satisfaction)) +
   geom_histogram(aes(fill = gender),
-    position = "dodge2") +
+   binwidth = 0.75,
+                  position = "dodge2") +
   scale_fill_manual(values = c("maroon","darkgreen")) +
   labs(
     x = "Job Satisfaction",
@@ -124,6 +125,27 @@ data %>% ggplot(aes(x = career_change_interest)) +
     x = "Career Change Interest",
     y = "Frequency",
     title = "Interest in a Change of Career by Gender")
+
+
+#creating vectors from each metric separated by gender 
+
+job_satisfaction_m <- data %>% filter(gender == "Male") %>% select(job_satisfaction)
+job_satisfaction_w <- data %>% filter(gender == "Female") %>% select(job_satisfaction)
+career_changes_m <- data %>% filter(gender == "Male") %>% select(career_changes)
+career_changes_w <- data %>% filter(gender == "Female") %>% select(career_changes)
+career_change_interest_m <- data %>% filter(gender == "Male") %>% select(career_change_interest)
+career_change_interest_w <- data %>% filter(gender == "Female") %>% select(career_change_interest)
+
+#using a threshold of 0.05
+alpha <- 0.05
+
+t.test(job_satisfaction_m,job_satisfaction_w,alternative = "two.sided",conf.level = 1-alpha)
+t.test(career_changes_m,career_changes_w,alternative = "two.sided",conf.level = 1-alpha)
+t.test(career_change_interest_m,career_change_interest_w,alternative = "two.sided",conf.level = 1-alpha)
+
+
+
+
 
 ```
 
