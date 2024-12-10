@@ -100,16 +100,17 @@ data %>% ggplot(aes(x = career_change_interest)) +
 
 data %>% ggplot(aes(x = job_satisfaction)) +
   geom_histogram(aes(fill = gender),
-   binwidth = 0.75,
+   binwidth = 1,
                   position = "dodge2") +
-  scale_fill_manual(values = c("maroon","darkgreen")) +
+  scale_fill_manual(values = c("maroon","darkgreen")) + scale_x_continuous(breaks = seq(0, 10, by = 1)) +
   labs(
     x = "Job Satisfaction",
     y = "Frequency",
-    title = "Job Satisfaction by Gender")
+    title = "Job Satisfaction by Gender") 
 
 data %>% ggplot(aes(x = career_changes)) +
   geom_histogram(aes(fill = gender),
+                 binwidth = 1,
     position = "dodge2") +
   scale_fill_manual(values = c("maroon","darkgreen")) +
   labs(
@@ -119,8 +120,9 @@ data %>% ggplot(aes(x = career_changes)) +
 
 data %>% ggplot(aes(x = career_change_interest)) +
   geom_histogram(aes(fill = gender),
+                 binwidth = 1,
     position = "dodge2") +
-  scale_fill_manual(values = c("maroon","darkgreen")) +
+  scale_fill_manual(values = c("maroon","darkgreen")) +  
   labs(
     x = "Career Change Interest",
     y = "Frequency",
