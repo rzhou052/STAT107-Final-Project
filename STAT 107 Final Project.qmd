@@ -1,26 +1,189 @@
 ---
 title: "STAT 107 Final Project"
+author: "Ash Mansour, Jenny Zhang, Adam Rui, Richard Zhou"
 format: html
 editor: visual
 ---
 
-## Quarto
+# Introduction
 
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+## Objective
 
-## Running Code
+\[Describe purpose of analysis and the dataset\]
 
-When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+## Dataset Overview
+
+### Description (Source: [kaggle.com](https://www.kaggle.com/datasets/jahnavipaliwal/field-of-study-vs-occupation)):
+
+This dataset of over 30,000 entries of 22 attributes regarding each individual's personal details, job satisfaction, and more, provides excellent insight into the reasons individuals change careers. The dataset focuses on the possible sources of influence that could push someone to both change careers, and also to stay in one.
+
+# Data Preparation
+
+## Cleaning the Data
 
 ```{r}
-1 + 1
+data <- read.csv("data/career.csv")
+
+data <- data[, c(1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 15, 16, 21, 23)]
+
+colnames(data) <- c("field_of_study",              # categorical string: field of study during education
+                    "current_occupation",          # categorical string: current industry employed in
+                    "age",                         # integer: current age
+                    "gender",                      # categorical string: gender of individual
+                    "years_experience",            # integer: # of years having been in the workforce
+                    "education_level",             # ordinal string: highest level of education completed
+                    "industry_growth_rate",        # ordinal string: growth rate of the current industry employed in
+                    "job_satisfaction",            # integer (1-10 scale): rating of current job satisfaction
+                    "work_life_balance",           # integer (1-10 scale): rating of perceived work-life balance
+                    "salary",                      # integer: annual salary in USD
+                    "job_security",                # integer (1-10 scale): rating of perceived job security
+                    "career_change_interest",      # boolean (1 = Yes, 0 = No): whether interested in changing industries
+                    "family_influence",            # ordinal string: degree of influence family had on career choice
+                    "mentor_availability",         # boolean (1 = Yes, 0 = No): access to a mentor in current occupation
+                    "career_changes",              # integer: # of career changes in the past
+                    "likely_to_change_occupation") # boolean (1 = Yes, 0 = No): whether likely to change occupation
 ```
 
-You can add options to executable code like this
+Although many attributes are very useful, given that this analysis won't require all 22 of them, there's no need to include each and every one. We also changed each variable name to better fit common naming conventions, and to better clarify their purpose.
+
+## Summary Statistics
 
 ```{r}
-#| echo: false
-2 * 2
+# summary(data)
 ```
 
-The `echo: false` option disables the printing of code (only output is displayed).
+\[Maybe a quick summary if anything interesting? if not, not important\]
+
+# Data Visualization
+
+## Analysis #1 (REPLACE WITH APPROPRIATE NAME)
+
+```{r}
+# do the thingy
+library("tidyverse")
+
+#adding a column that converts gender data into a True/False data with Male = True to allow later analyses with gender 
+data$gendernum <- ifelse(data$gender == "Male", T,F)
+
+
+#checking parameters to ensure an anova is possible. Standard Error looks similar between groups, which should mean that this will work. 
+data %>% group_by(gender) %>% summarize(
+    n = n(),  
+    MeanSatisfaction = mean(job_satisfaction),
+    MeanCareerChanges = mean(career_changes),
+    MeanCareerChangeInterest = mean(career_change_interest),
+    SDSatisfaction = sd(job_satisfaction),
+    SDCareerChanges = sd(career_changes),
+    SDCareerChangeInterest = sd(career_change_interest),
+    SESatisfaction = sd(job_satisfaction)/sqrt(n()),
+    SECareerChanges = sd(career_changes)/sqrt(n()),
+    SECareerChangeInterest = sd(career_change_interest)/sqrt(n())
+  )
+
+#plotting histograms of data to ensure that they fit the normality condition
+
+```
+
+\[Summary of analysis\]
+
+## Analysis #2: Factors Influencing Job Satisfaction Using Chi Square Testing and Linear Regression
+
+```{r}
+  library(tidyverse)
+  library(broom)
+  library(caret)
+  library(ggthemes)
+  
+
+
+  # looking at these correlation variables
+  correlation_vars <- c("work_life_balance", "salary", "job_security", "years_experience", "likely_to_change_occupation")
+  
+  # correlation based on job satisfaction
+  correlation_results <- cor(data[, correlation_vars], data$job_satisfaction, use = "complete.obs")
+  print("Correlation Results:")
+  
+  #make table
+  
+  correlation_results <- co4r(data[, correlation_vars], data$job_satisfaction, use = "complete.obs")
+
+
+  correlation_table <- data.frame(Variable = rownames(correlation_results),
+                       Correlation = as.vector(correlation_results))
+  
+  
+  print("Correlation Table:")
+  print(correlation_table)
+
+  
+  # significance to our correlaTion values from above?
+  correlation_test_results <- lapply(correlation_vars, function(var) {
+    cor.test(data[[var]], data$job_satisfaction)
+  })
+```
+
+From our correlation analysis results where we look at job satisfaction rates being compared against numerical variables work life balance, job security, salary, and years of experience, we can see that there is a near zero correlation, compared to the correlation of likelihood of changing occupations. Job satisfaction and likelihood of changing occupations has a strong negative correlation of -0.5955501, whereas the other variables have a correlation of around -0.006 to 0.003, which is relatively weak. The negative correlation between job satisfaction and likelihood of changing occupations tells us that the more unsatisfied one is with there job, the more likely they are to consider changing occupations, which is a realistic relation.
+
+Even when looking at the p values that we obtain from the correlation testing, changing occupations has the most statistically significant p value of \< 2.2e-16, which further backs up our negative correlation with job satisfaction. Other variables all have p values above 0.05, disproving their significance in regards to job satisfaction.
+
+```{r}
+{r} # doing chi square test on non numerical/categorical variables
+  categorical_vars <- c("field_of_study", "industry_growth_rate", "family_influence")
+  for (var in categorical_vars) {
+    chi_square_table <- table(data[[var]], data$job_satisfaction)
+    chi_square_result <- chisq.test(chi_square_table)
+    print(paste("Chi-square test for", var))
+    print(chi_square_result)
+  }
+```
+
+When looking at categorical variables field of study, industry growth rate, and family influence, our chi square tests did mostly to approve of the lack of significant association between those variables and job satisfaction as p values among these variable were above our significant value of 0.05.
+
+```{r}
+#linear regression time..
+  
+  model <- lm(job_satisfaction ~ gender + family_influence + work_life_balance + job_security +   salary, data = data)
+  model_summary <- summary(model)
+  print("Linear Regression Summary:")
+  print(model_summary)
+  
+  model_tidy <- tidy(model)
+  print("Linear Model Output:")
+  print(model_tidy)
+  
+  # lOoking at job satisfaction vs changing occupation
+  
+    ggplot(data, aes(x = likely_to_change_occupation, y = job_satisfaction)) +
+    geom_point(alpha = 0.5) +
+    geom_smooth(method = "lm", se = FALSE, color = "tan1") +
+    ggtitle("Job Satisfaction vs Likelihood of Changing Occupation") +
+    xlab("Likelihood of Changing Occupation") +
+    ylab("Job Satisfaction") +
+    theme_linedraw()
+```
+
+The linear regression model backs up our correlation analysis results as the y intercept of the regression analysis equation is 5.56, which essentially tell us that if all other variables had a value of 0, this is where job satisfactions would be at.. This value is statistically significant with a p value of \<2e\^-16 (obtained from the linear regression summary table). another variable that we can consider that has some sort of an impact on job satisfaction could be ones lack of family impact (none) as its p value is 0.0691, which is closer to our threshold of 0.05 in comparison to our other variables that all have p values greater than 0.17 (statistically more insignificant). From this table we can entertain the idea that having no family influence may also impact job satisfaction, albeit that its p value is still above 0.05.
+
+Overall, we can see that the strongest variable with the greatest correlation to job satisfaction is likelihood of changing occupations, as shown by the correlation analysis, and linear regression model. However, data from the other variable just may not be conclusive enough for us to have a linear regression model with a stronger fit. Further analyses can bring more insight into likelihood of changing occupation can perhaps give more insight on our other variables.
+
+## Analysis #3 (REPLACE WITH APPROPRIATE NAME)
+
+```{r}
+# do the thingy
+```
+
+\[Summary of analysis\]
+
+# Key Findings and Summary
+
+## Findings:
+
+-   \[Quick summary of findings from analysis #1\]
+
+-   \[Quick summary of findings from analysis #2\]
+
+-   \[Quick summary of findings from analysis #3\]
+
+## Summary:
+
+\[Summary of entire project\]
