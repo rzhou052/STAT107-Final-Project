@@ -324,7 +324,7 @@ The multiple logistic regression shows that:
 
 ### Analysis #1:
 
--   \[Quick summary of findings from analysis #1\]
+-   Our findings seem to suggest that gender does not play a major role in predicting career change interest or job satisfaction within the scope of the current dataset.
 
 ### Analysis #2:
 
@@ -336,4 +336,12 @@ The multiple logistic regression shows that:
 
 ## Summary:
 
-\[Summary of entire project\]
+This analysis explored factors influencing career change, focusing on job satisfaction, work-life balance, salary, family influence, and current occupation. Three key analyses were conducted:
+
+1.  A t-test found no significant gender differences in job satisfaction, career changes, or interest in career change.
+
+2.  Job satisfaction showed a strong negative correlation with the likelihood of changing careers, while other factors like salary and work-life balance had weak correlations.
+
+3.  Logistic regression revealed that family influence and current occupation were significant in predicting career change interest, while gender and job security had little effect.
+
+Overall, job satisfaction, family influence, and occupation type were the most important factors influencing career change interest, while gender and job security showed minimal impact.

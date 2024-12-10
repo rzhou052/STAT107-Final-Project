@@ -107,7 +107,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h1>Introduction</h1>
 <section id="objective" class="level2">
 <h2 class="anchored" data-anchor-id="objective">Objective</h2>
-<p>[Describe purpose of analysis and the dataset]</p>
+<p>The objective of this analysis is to explore the factors that may or may not hold influence over an individual’s likelihood to change careers, focusing on variables such as job satisfaction, work-life balance, salary, family influence, and current occupation.</p>
 </section>
 <section id="dataset-overview" class="level2">
 <h2 class="anchored" data-anchor-id="dataset-overview">Dataset Overview</h2>
@@ -119,77 +119,567 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="data-preparation" class="level1">
 <h1>Data Preparation</h1>
+<section id="loading-packages" class="level2">
+<h2 class="anchored" data-anchor-id="loading-packages">Loading Packages</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4     ✔ readr     2.1.5
+✔ forcats   1.0.0     ✔ stringr   1.5.1
+✔ ggplot2   3.5.1     ✔ tibble    3.2.1
+✔ lubridate 1.9.3     ✔ tidyr     1.3.1
+✔ purrr     1.0.2     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(broom)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(caret)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: lattice
+
+Attaching package: 'caret'
+
+The following object is masked from 'package:purrr':
+
+    lift</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggthemes)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(furniture)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
 <section id="cleaning-the-data" class="level2">
 <h2 class="anchored" data-anchor-id="cleaning-the-data">Cleaning the Data</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/career.csv"</span>)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> data[, <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">6</span>, <span class="dv">7</span>, <span class="dv">8</span>, <span class="dv">9</span>, <span class="dv">11</span>, <span class="dv">12</span>, <span class="dv">13</span>, <span class="dv">15</span>, <span class="dv">16</span>, <span class="dv">21</span>, <span class="dv">23</span>)]</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(data) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"field_of_study"</span>,              <span class="co"># categorical string: field of study during education</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"current_occupation"</span>,          <span class="co"># categorical string: current industry employed in</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"age"</span>,                         <span class="co"># integer: current age</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"gender"</span>,                      <span class="co"># categorical string: gender of individual</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"years_experience"</span>,            <span class="co"># integer: # of years having been in the workforce</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"education_level"</span>,             <span class="co"># ordinal string: highest level of education completed</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"industry_growth_rate"</span>,        <span class="co"># ordinal string: growth rate of the current industry employed in</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"job_satisfaction"</span>,            <span class="co"># integer (1-10 scale): rating of current job satisfaction</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"work_life_balance"</span>,           <span class="co"># integer (1-10 scale): rating of perceived work-life balance</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"salary"</span>,                      <span class="co"># integer: annual salary in USD</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"job_security"</span>,                <span class="co"># integer (1-10 scale): rating of perceived job security</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"career_change_interest"</span>,      <span class="co"># boolean (1 = Yes, 0 = No): whether interested in changing industries</span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"family_influence"</span>,            <span class="co"># ordinal string: degree of influence family had on career choice</span></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"mentor_availability"</span>,         <span class="co"># boolean (1 = Yes, 0 = No): access to a mentor in current occupation</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"career_changes"</span>,              <span class="co"># integer: # of career changes in the past</span></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"likely_to_change_occupation"</span>) <span class="co"># boolean (1 = Yes, 0 = No): whether likely to change occupation</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/career.csv"</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> data[, <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">6</span>, <span class="dv">7</span>, <span class="dv">8</span>, <span class="dv">9</span>, <span class="dv">11</span>, <span class="dv">12</span>, <span class="dv">13</span>, <span class="dv">15</span>, <span class="dv">16</span>, <span class="dv">21</span>, <span class="dv">23</span>)]</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(data) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"field_of_study"</span>,              <span class="co"># categorical string: field of study during education</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"current_occupation"</span>,          <span class="co"># categorical string: current industry employed in</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"age"</span>,                         <span class="co"># integer: current age</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"gender"</span>,                      <span class="co"># categorical string: gender of individual</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"years_experience"</span>,            <span class="co"># integer: # of years having been in the workforce</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"education_level"</span>,             <span class="co"># ordinal string: highest level of education completed</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"industry_growth_rate"</span>,        <span class="co"># ordinal string: growth rate of the current industry employed in</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"job_satisfaction"</span>,            <span class="co"># integer (1-10 scale): rating of current job satisfaction</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"work_life_balance"</span>,           <span class="co"># integer (1-10 scale): rating of perceived work-life balance</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"salary"</span>,                      <span class="co"># integer: annual salary in USD</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"job_security"</span>,                <span class="co"># integer (1-10 scale): rating of perceived job security</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"career_change_interest"</span>,      <span class="co"># boolean (1 = Yes, 0 = No): whether interested in changing industries</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"family_influence"</span>,            <span class="co"># ordinal string: degree of influence family had on career choice</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"mentor_availability"</span>,         <span class="co"># boolean (1 = Yes, 0 = No): access to a mentor in current occupation</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"career_changes"</span>,              <span class="co"># integer: # of career changes in the past</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"likely_to_change_occupation"</span>) <span class="co"># boolean (1 = Yes, 0 = No): whether likely to change occupation</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Although many attributes are very useful, given that this analysis won’t require all 22 of them, there’s no need to include each and every one. We also changed each variable name to better fit common naming conventions, and to better clarify their purpose.</p>
 </section>
-<section id="summary-statistics" class="level2">
-<h2 class="anchored" data-anchor-id="summary-statistics">Summary Statistics</h2>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># summary(data)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<p>[Maybe a quick summary if anything interesting? if not, not important]</p>
 </section>
-</section>
-<section id="data-visualization" class="level1">
-<h1>Data Visualization</h1>
-<section id="analysis-1-replace-with-appropriate-name" class="level2">
-<h2 class="anchored" data-anchor-id="analysis-1-replace-with-appropriate-name">Analysis #1 (REPLACE WITH APPROPRIATE NAME)</h2>
+<section id="data-analysisvisualization" class="level1">
+<h1>Data Analysis/Visualization</h1>
+<section id="analysis-1-two-sided-two-sample-t-test" class="level2">
+<h2 class="anchored" data-anchor-id="analysis-1-two-sided-two-sample-t-test">Analysis #1 Two-Sided, Two-Sample t-test</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># do the thingy</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">#checking parameters and creating a summary. The chosen variables are the level of job satisfaction, the number of career changes, and the stated interest in a career change. </span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>data <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(gender) <span class="sc">%&gt;%</span> <span class="fu">summarize</span>(</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># separating by gender to examine differences in ability to move between jobs  </span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">n =</span> <span class="fu">n</span>(),  </span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">MeanSatisfaction =</span> <span class="fu">mean</span>(job_satisfaction),</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">MeanCareerChanges =</span> <span class="fu">mean</span>(career_changes),</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">MeanCareerChangeInterest =</span> <span class="fu">mean</span>(career_change_interest),</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">#creating the means of the variables </span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">SDSatisfaction =</span> <span class="fu">sd</span>(job_satisfaction),</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">SDCareerChanges =</span> <span class="fu">sd</span>(career_changes),</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">SDCareerChangeInterest =</span> <span class="fu">sd</span>(career_change_interest),</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    <span class="co">#calulating the standard deviation</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">SESatisfaction =</span> <span class="fu">sd</span>(job_satisfaction)<span class="sc">/</span><span class="fu">sqrt</span>(<span class="fu">n</span>()),</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">SECareerChanges =</span> <span class="fu">sd</span>(career_changes)<span class="sc">/</span><span class="fu">sqrt</span>(<span class="fu">n</span>()),</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">SECareerChangeInterest =</span> <span class="fu">sd</span>(career_change_interest)<span class="sc">/</span><span class="fu">sqrt</span>(<span class="fu">n</span>())</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>    <span class="co">#calculating standard error </span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 11
+  gender     n MeanSatisfaction MeanCareerChanges MeanCareerChangeInterest
+  &lt;chr&gt;  &lt;int&gt;            &lt;dbl&gt;             &lt;dbl&gt;                    &lt;dbl&gt;
+1 Female 19299             5.48              1.00                    0.202
+2 Male   19145             5.50              1.01                    0.198
+# ℹ 6 more variables: SDSatisfaction &lt;dbl&gt;, SDCareerChanges &lt;dbl&gt;,
+#   SDCareerChangeInterest &lt;dbl&gt;, SESatisfaction &lt;dbl&gt;, SECareerChanges &lt;dbl&gt;,
+#   SECareerChangeInterest &lt;dbl&gt;</code></pre>
 </div>
-<p>[Summary of analysis]</p>
-</section>
-<section id="analysis-2-replace-with-appropriate-name" class="level2">
-<h2 class="anchored" data-anchor-id="analysis-2-replace-with-appropriate-name">Analysis #2 (REPLACE WITH APPROPRIATE NAME)</h2>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">#plotting histograms of data to check distribution -&gt; non-normal distribution makes anova impossible </span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>data <span class="sc">%&gt;%</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> job_satisfaction)) <span class="sc">+</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">fill =</span> gender)) <span class="sc">+</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_grid</span>(<span class="at">cols =</span> <span class="fu">vars</span>(gender)) <span class="sc">+</span><span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">10</span>, <span class="at">by =</span> <span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="STAT-107-Final-Project_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>data <span class="sc">%&gt;%</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> career_changes)) <span class="sc">+</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">fill =</span> gender)) <span class="sc">+</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_grid</span>(<span class="at">cols =</span> <span class="fu">vars</span>(gender)) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="STAT-107-Final-Project_files/figure-html/unnamed-chunk-3-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>data <span class="sc">%&gt;%</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> career_change_interest)) <span class="sc">+</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">fill =</span> gender)) <span class="sc">+</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_grid</span>(<span class="at">cols =</span> <span class="fu">vars</span>(gender)) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="STAT-107-Final-Project_files/figure-html/unnamed-chunk-3-3.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The goal of this analysis was to determine if there was a gendered difference affecting desire to leave jobs based on the hypothesis that women may have a harder time leaving jobs due to discrimination in hiring processes. Because we are looking to analyse two populations (men and women) and examine differences in their means, a t-test was selected. The data shows a weak difference between the selected variables: job satisfaction, the number of previous career changes, and current interest in a career change. These variables were selected on the basis that they seemed the most likely to be able to predict differences in willingness to move between jobs, with job satisfaction and career change interest predicting current willingness to look for a job and previous career changes predicting if there were differences overall.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># do the thingy</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co">#plotting bar graphs of data to examine differences due to gender visually</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>data <span class="sc">%&gt;%</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> job_satisfaction)) <span class="sc">+</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">fill =</span> gender),</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>   <span class="at">binwidth =</span> <span class="dv">1</span>,</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>                  <span class="at">position =</span> <span class="st">"dodge2"</span>) <span class="sc">+</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"maroon"</span>,<span class="st">"darkgreen"</span>)) <span class="sc">+</span> <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">10</span>, <span class="at">by =</span> <span class="dv">1</span>)) <span class="sc">+</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Job Satisfaction"</span>,</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Frequency"</span>,</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Job Satisfaction by Gender"</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="STAT-107-Final-Project_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
 </div>
-<p>[Summary of analysis]</p>
-</section>
-<section id="analysis-3-replace-with-appropriate-name" class="level2">
-<h2 class="anchored" data-anchor-id="analysis-3-replace-with-appropriate-name">Analysis #3 (REPLACE WITH APPROPRIATE NAME)</h2>
+</div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>data <span class="sc">%&gt;%</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> career_changes)) <span class="sc">+</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">fill =</span> gender),</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">binwidth =</span> <span class="fl">0.95</span>,</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">position =</span> <span class="st">"dodge2"</span>) <span class="sc">+</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"maroon"</span>,<span class="st">"darkgreen"</span>)) <span class="sc">+</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Number of Career Changes"</span>,</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Frequency"</span>,</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Career Changes by Gender"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="STAT-107-Final-Project_files/figure-html/unnamed-chunk-4-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>data <span class="sc">%&gt;%</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> career_change_interest)) <span class="sc">+</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">fill =</span> gender),</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">binwidth =</span> <span class="fl">0.95</span>,</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">position =</span> <span class="st">"dodge2"</span>) <span class="sc">+</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"maroon"</span>,<span class="st">"darkgreen"</span>)) <span class="sc">+</span>  </span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Career Change Interest"</span>,</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Frequency"</span>,</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Interest in a Change of Career by Gender"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="STAT-107-Final-Project_files/figure-html/unnamed-chunk-4-3.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Looking at the raw data, job satisfaction showed more women had a job satisfaction that was around 5, and men appear to have been more likely to be on either end of the spectrum, which could result in an overall mean being similar. Even this pattern is subtle though, and likely would also be statistically insignificant. The other two variables related to career changes were less varied, and were very close in mean in both men and women.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># do the thingy</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co">#creating vectors from each metric separated by gender to compare by t-test</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>job_satisfaction_m <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span> <span class="fu">filter</span>(gender <span class="sc">==</span> <span class="st">"Male"</span>) <span class="sc">%&gt;%</span> <span class="fu">select</span>(job_satisfaction)</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>job_satisfaction_w <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span> <span class="fu">filter</span>(gender <span class="sc">==</span> <span class="st">"Female"</span>) <span class="sc">%&gt;%</span> <span class="fu">select</span>(job_satisfaction)</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>career_changes_m <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span> <span class="fu">filter</span>(gender <span class="sc">==</span> <span class="st">"Male"</span>) <span class="sc">%&gt;%</span> <span class="fu">select</span>(career_changes)</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>career_changes_w <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span> <span class="fu">filter</span>(gender <span class="sc">==</span> <span class="st">"Female"</span>) <span class="sc">%&gt;%</span> <span class="fu">select</span>(career_changes)</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>career_change_interest_m <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span> <span class="fu">filter</span>(gender <span class="sc">==</span> <span class="st">"Male"</span>) <span class="sc">%&gt;%</span> <span class="fu">select</span>(career_change_interest)</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>career_change_interest_w <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span> <span class="fu">filter</span>(gender <span class="sc">==</span> <span class="st">"Female"</span>) <span class="sc">%&gt;%</span> <span class="fu">select</span>(career_change_interest)</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a><span class="co">#using a threshold of 0.05 for confidence </span></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>alpha <span class="ot">&lt;-</span> <span class="fl">0.05</span></span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a><span class="fu">t.test</span>(job_satisfaction_m,job_satisfaction_w,<span class="at">alternative =</span> <span class="st">"two.sided"</span>,<span class="at">conf.level =</span> <span class="dv">1</span><span class="sc">-</span>alpha)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Welch Two Sample t-test
+
+data:  job_satisfaction_m and job_satisfaction_w
+t = 0.44136, df = 38431, p-value = 0.659
+alternative hypothesis: true difference in means is not equal to 0
+95 percent confidence interval:
+ -0.04446771  0.07031452
+sample estimates:
+mean of x mean of y 
+ 5.496161  5.483237 </code></pre>
 </div>
-<p>[Summary of analysis]</p>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">t.test</span>(career_changes_m,career_changes_w,<span class="at">alternative =</span> <span class="st">"two.sided"</span>,<span class="at">conf.level =</span> <span class="dv">1</span><span class="sc">-</span>alpha)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Welch Two Sample t-test
+
+data:  career_changes_m and career_changes_w
+t = 0.83454, df = 38442, p-value = 0.404
+alternative hypothesis: true difference in means is not equal to 0
+95 percent confidence interval:
+ -0.009367174  0.023258640
+sample estimates:
+mean of x mean of y 
+1.0067903 0.9998446 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">t.test</span>(career_change_interest_m,career_change_interest_w,<span class="at">alternative =</span> <span class="st">"two.sided"</span>,<span class="at">conf.level =</span> <span class="dv">1</span><span class="sc">-</span>alpha)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Welch Two Sample t-test
+
+data:  career_change_interest_m and career_change_interest_w
+t = -0.84445, df = 38442, p-value = 0.3984
+alternative hypothesis: true difference in means is not equal to 0
+95 percent confidence interval:
+ -0.011440517  0.004550882
+sample estimates:
+mean of x mean of y 
+0.1981718 0.2016167 </code></pre>
+</div>
+</div>
+<p>Interestingly, the p-value of career change interest was smallest, although still very far from significant. More women than men showed interest in a career change, which could be interpreted as women being more likely to move careers in the future. In combination with the number of women having changed careers twice being greater than the number of men who have changed careers twice, this is interesting. However, the data that is present here indicates that this difference is due to random chance and not a statistically significant observable difference in job satisfaction, number of career changes, or indication of interest in a new career change between men and women.</p>
+</section>
+<section id="analysis-2-factors-influencing-job-satisfaction-using-chi-square-testing-and-linear-regression" class="level2">
+<h2 class="anchored" data-anchor-id="analysis-2-factors-influencing-job-satisfaction-using-chi-square-testing-and-linear-regression">Analysis #2: Factors Influencing Job Satisfaction Using Chi Square Testing and Linear Regression</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>  <span class="co"># looking at these correlation variables</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  correlation_vars <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"work_life_balance"</span>, <span class="st">"salary"</span>, <span class="st">"job_security"</span>, <span class="st">"years_experience"</span>, <span class="st">"likely_to_change_occupation"</span>)</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># correlation based on job satisfaction</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>  correlation_results <span class="ot">&lt;-</span> <span class="fu">cor</span>(data[, correlation_vars], data<span class="sc">$</span>job_satisfaction, <span class="at">use =</span> <span class="st">"complete.obs"</span>)</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="st">"Correlation Results:"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Correlation Results:"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>  <span class="co">#make table</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  correlation_results <span class="ot">&lt;-</span> <span class="fu">cor</span>(data[, correlation_vars], data<span class="sc">$</span>job_satisfaction, <span class="at">use =</span> <span class="st">"complete.obs"</span>)</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>  correlation_table <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Variable =</span> <span class="fu">rownames</span>(correlation_results),</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>                       <span class="at">Correlation =</span> <span class="fu">as.vector</span>(correlation_results))</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="st">"Correlation Table:"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Correlation Table:"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(correlation_table)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                     Variable  Correlation
+1           work_life_balance -0.006911601
+2                      salary -0.004732691
+3                job_security  0.003432535
+4            years_experience -0.005105867
+5 likely_to_change_occupation -0.595550075</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>  <span class="co"># significance to our correlaTion values from above?</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  correlation_test_results <span class="ot">&lt;-</span> <span class="fu">lapply</span>(correlation_vars, <span class="cf">function</span>(var) {</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cor.test</span>(data[[var]], data<span class="sc">$</span>job_satisfaction)</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  })</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>From our correlation analysis results where we look at job satisfaction rates being compared against numerical variables work life balance, job security, salary, and years of experience, we can see that there is a near zero correlation, compared to the correlation of likelihood of changing occupations. Job satisfaction and likelihood of changing occupations has a strong negative correlation of -0.5955501, whereas the other variables have a correlation of around -0.006 to 0.003, which is relatively weak. The negative correlation between job satisfaction and likelihood of changing occupations tells us that the more unsatisfied one is with there job, the more likely they are to consider changing occupations, which is a realistic relation.</p>
+<p>Even when looking at the p values that we obtain from the correlation testing, changing occupations has the most statistically significant p value of &lt; 2.2e-16, which further backs up our negative correlation with job satisfaction. Other variables all have p values above 0.05, disproving their significance in regards to job satisfaction.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># doing chi square test on non numerical/categorical variables</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  categorical_vars <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"field_of_study"</span>, <span class="st">"industry_growth_rate"</span>, <span class="st">"family_influence"</span>)</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (var <span class="cf">in</span> categorical_vars) {</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>    chi_square_table <span class="ot">&lt;-</span> <span class="fu">table</span>(data[[var]], data<span class="sc">$</span>job_satisfaction)</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>    chi_square_result <span class="ot">&lt;-</span> <span class="fu">chisq.test</span>(chi_square_table)</span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">print</span>(<span class="fu">paste</span>(<span class="st">"Chi-square test for"</span>, var))</span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">print</span>(chi_square_result)</span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>  }</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Chi-square test for field_of_study"
+
+    Pearson's Chi-squared test
+
+data:  chi_square_table
+X-squared = 86.492, df = 81, p-value = 0.3177
+
+[1] "Chi-square test for industry_growth_rate"
+
+    Pearson's Chi-squared test
+
+data:  chi_square_table
+X-squared = 20.301, df = 18, p-value = 0.3161
+
+[1] "Chi-square test for family_influence"
+
+    Pearson's Chi-squared test
+
+data:  chi_square_table
+X-squared = 29.773, df = 27, p-value = 0.3244</code></pre>
+</div>
+</div>
+<p>When looking at categorical variables field of study, industry growth rate, and family influence, our chi square tests did mostly to approve of the lack of significant association between those variables and job satisfaction as p values among these variable were above our significant value of 0.05.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co">#linear regression time..</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  model <span class="ot">&lt;-</span> <span class="fu">lm</span>(job_satisfaction <span class="sc">~</span> gender <span class="sc">+</span> family_influence <span class="sc">+</span> work_life_balance <span class="sc">+</span> job_security <span class="sc">+</span>   salary, <span class="at">data =</span> data)</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>  model_summary <span class="ot">&lt;-</span> <span class="fu">summary</span>(model)</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="st">"Linear Regression Summary:"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Linear Regression Summary:"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(model_summary)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = job_satisfaction ~ gender + family_influence + work_life_balance + 
+    job_security + salary, data = data)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-4.6054 -2.4906  0.4024  2.5060  4.6286 
+
+Coefficients:
+                         Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)             5.560e+00  6.160e-02  90.259   &lt;2e-16 ***
+genderMale              1.267e-02  2.928e-02   0.433   0.6652    
+family_influenceLow     2.500e-02  4.144e-02   0.603   0.5464    
+family_influenceMedium -5.018e-02  4.137e-02  -1.213   0.2252    
+family_influenceNone   -7.518e-02  4.136e-02  -1.818   0.0691 .  
+work_life_balance      -6.994e-03  5.085e-03  -1.375   0.1690    
+job_security            3.456e-03  5.100e-03   0.678   0.4981    
+salary                 -2.777e-07  2.990e-07  -0.929   0.3530    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 2.87 on 38436 degrees of freedom
+Multiple R-squared:  0.0002775, Adjusted R-squared:  9.543e-05 
+F-statistic: 1.524 on 7 and 38436 DF,  p-value: 0.1538</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>  model_tidy <span class="ot">&lt;-</span> <span class="fu">tidy</span>(model)</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="st">"Linear Model Output:"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Linear Model Output:"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(model_tidy)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 8 × 5
+  term                       estimate   std.error statistic p.value
+  &lt;chr&gt;                         &lt;dbl&gt;       &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;
+1 (Intercept)             5.56        0.0616         90.3    0     
+2 genderMale              0.0127      0.0293          0.433  0.665 
+3 family_influenceLow     0.0250      0.0414          0.603  0.546 
+4 family_influenceMedium -0.0502      0.0414         -1.21   0.225 
+5 family_influenceNone   -0.0752      0.0414         -1.82   0.0691
+6 work_life_balance      -0.00699     0.00509        -1.38   0.169 
+7 job_security            0.00346     0.00510         0.678  0.498 
+8 salary                 -0.000000278 0.000000299    -0.929  0.353 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>  <span class="co"># lOoking at job satisfaction vs changing occupation</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>(data, <span class="fu">aes</span>(<span class="at">x =</span> likely_to_change_occupation, <span class="at">y =</span> job_satisfaction)) <span class="sc">+</span></span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">color =</span> <span class="st">"tan1"</span>) <span class="sc">+</span></span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggtitle</span>(<span class="st">"Job Satisfaction vs Likelihood of Changing Occupation"</span>) <span class="sc">+</span></span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">xlab</span>(<span class="st">"Likelihood of Changing Occupation"</span>) <span class="sc">+</span></span>
+<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ylab</span>(<span class="st">"Job Satisfaction"</span>) <span class="sc">+</span></span>
+<span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_linedraw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="STAT-107-Final-Project_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The linear regression model backs up our correlation analysis results as the y intercept of the regression analysis equation is 5.56, which essentially tell us that if all other variables had a value of 0, this is where job satisfactions would be at.. This value is statistically significant with a p value of &lt;2e^-16 (obtained from the linear regression summary table). another variable that we can consider that has some sort of an impact on job satisfaction could be ones lack of family impact (none) as its p value is 0.0691, which is closer to our threshold of 0.05 in comparison to our other variables that all have p values greater than 0.17 (statistically more insignificant). From this table we can entertain the idea that having no family influence may also impact job satisfaction, albeit that its p value is still above 0.05.</p>
+<p>Overall, we can see that the strongest variable with the greatest correlation to job satisfaction is likelihood of changing occupations, as shown by the correlation analysis, and linear regression model. However, data from the other variable just may not be conclusive enough for us to have a linear regression model with a stronger fit. Further analyses can bring more insight into likelihood of changing occupation can perhaps give more insight on our other variables.</p>
+</section>
+<section id="analysis-3---multiple-logistic-regression-analysis---ratio-of-career-change-interest" class="level2">
+<h2 class="anchored" data-anchor-id="analysis-3---multiple-logistic-regression-analysis---ratio-of-career-change-interest">Analysis #3 - Multiple Logistic Regression Analysis - Ratio of Career Change Interest</h2>
+<p>In the dataset, code the <code>family_influence</code> variable as an ordered factor with levels “None”, “Low”, “Medium”, and “High” to represent escalating family influence levels. To show particular occupations of interest, code the <code>current_occupation</code> variable in the <code>data</code> dataset.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>data<span class="sc">$</span>family_influence <span class="ot">&lt;-</span> <span class="fu">factor</span>(data<span class="sc">$</span>family_influence,</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>                              <span class="fu">c</span>(<span class="st">"None"</span>,<span class="st">"Low"</span>,<span class="st">"Medium"</span>,<span class="st">"High"</span>))</span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>data<span class="sc">$</span>current_occupation <span class="ot">&lt;-</span> <span class="fu">factor</span>(data<span class="sc">$</span>current_occupation,</span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>                              <span class="fu">c</span>(<span class="st">"Software Developer"</span>,<span class="st">"Artist"</span>,</span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>                                <span class="st">"Mechanical Engineer"</span>,<span class="st">"Business Analyst"</span>,</span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>                                <span class="st">"Lawyer"</span>,<span class="st">"Economist"</span>,<span class="st">"Teacher"</span>,</span>
+<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a>                                <span class="st">"Doctor"</span>,<span class="st">"Biologist"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Generate a summary table of the dataset <code>data</code> with rows for variables <code>gender</code>, <code>family_influence</code>, <code>current_occupation</code>, and <code>job_security</code>. The table is split by the variable <code>career_change_interest</code>, showing grouped statistics for each level of interest. The <code>row_wise = TRUE</code> argument arranges the summary statistics row-wise, and the <code>test = TRUE</code> argument performs statistical tests (e.g., chi-squared or t-tests) to compare groups across <code>career_change_interest</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table1</span>(data,</span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>       gender,family_influence,current_occupation,job_security,</span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>       <span class="at">splitby =</span> <span class="sc">~</span>career_change_interest,</span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>       <span class="at">row_wise =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">test =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+───────────────────────────────────────────────────────────
+                        career_change_interest 
+                        0             1            P-Value
+                        n = 27646     n = 6908            
+ gender                                            0.469  
+    Female              13842 (79.9%) 3493 (20.1%)        
+    Male                13804 (80.2%) 3415 (19.8%)        
+ family_influence                                  0.117  
+    None                6873 (79.5%)  1774 (20.5%)        
+    Low                 6955 (80.9%)  1647 (19.1%)        
+    Medium              6935 (80%)    1732 (20%)          
+    High                6883 (79.7%)  1755 (20.3%)        
+ current_occupation                                0.052  
+    Software Developer  3157 (81.1%)  735 (18.9%)         
+    Artist              3147 (81.1%)  734 (18.9%)         
+    Mechanical Engineer 3088 (80.7%)  739 (19.3%)         
+    Business Analyst    3094 (80.2%)  764 (19.8%)         
+    Lawyer              3025 (80%)    756 (20%)           
+    Economist           3001 (79.7%)  766 (20.3%)         
+    Teacher             3091 (79.5%)  795 (20.5%)         
+    Doctor              3087 (79.4%)  801 (20.6%)         
+    Biologist           2956 (78.3%)  818 (21.7%)         
+ job_security                                      0.089  
+                        5.5 (2.9)     5.4 (2.9)           
+───────────────────────────────────────────────────────────</code></pre>
+</div>
+</div>
+<p>Use a logistic regression model (glm) to see how different factors affect the results. After extracting the model summary’s coefficients (except from the intercept), calculate the odds ratios’ (OR) 95% confidence intervals and round to two decimal places. Next, show a subset of the ORmtx data frame that includes p-values, OR, and confidence intervals.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>model1 <span class="ot">&lt;-</span> <span class="fu">glm</span>(career_change_interest <span class="sc">~</span>  </span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>                 gender<span class="sc">+</span>family_influence</span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>                 <span class="sc">+</span>current_occupation<span class="sc">+</span>job_security,</span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>                    <span class="at">family =</span> binomial, data)</span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>coef <span class="ot">&lt;-</span> <span class="fu">summary</span>(model1)<span class="sc">$</span>coef[<span class="sc">-</span><span class="dv">1</span>,]</span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a>CI <span class="ot">&lt;-</span> <span class="fu">round</span>(<span class="fu">exp</span>(<span class="fu">confint</span>(model1))[<span class="sc">-</span><span class="dv">1</span>,],<span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Waiting for profiling to be done...</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>OR <span class="ot">&lt;-</span> <span class="fu">round</span>(<span class="fu">exp</span>(coef[,<span class="dv">1</span>]),<span class="dv">2</span>)</span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>p.value <span class="ot">=</span> <span class="fu">round</span>(coef[,<span class="dv">4</span>],<span class="dv">4</span>)</span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>ORmtx <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(OR, <span class="at">Lower =</span> CI[,<span class="dv">1</span>], <span class="at">Upper=</span>CI[,<span class="dv">2</span>],</span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>                    p.value ) </span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a>ORmtx<span class="sc">$</span>Index <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(ORmtx))</span>
+<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a>ORmtx<span class="sc">$</span>Label <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Gender:Male vs. Female"</span>,</span>
+<span id="cb48-8"><a href="#cb48-8" aria-hidden="true" tabindex="-1"></a>                 <span class="st">"Family Influence: Low vs. None"</span>,</span>
+<span id="cb48-9"><a href="#cb48-9" aria-hidden="true" tabindex="-1"></a>                 <span class="st">"Family Influence: Medium vs. None"</span>,</span>
+<span id="cb48-10"><a href="#cb48-10" aria-hidden="true" tabindex="-1"></a>                 <span class="st">"Family Influence: High vs. None"</span>,</span>
+<span id="cb48-11"><a href="#cb48-11" aria-hidden="true" tabindex="-1"></a>                 <span class="st">"Current Occupation:Artist vs. Software Developer"</span>,</span>
+<span id="cb48-12"><a href="#cb48-12" aria-hidden="true" tabindex="-1"></a>                 <span class="st">"       Mechanical Engineer vs. Software Developer"</span>,</span>
+<span id="cb48-13"><a href="#cb48-13" aria-hidden="true" tabindex="-1"></a>                 <span class="st">"          Business Analyst vs. Software Developer"</span>,</span>
+<span id="cb48-14"><a href="#cb48-14" aria-hidden="true" tabindex="-1"></a>                 <span class="st">"                    Lawyer vs. Software Developer"</span>,</span>
+<span id="cb48-15"><a href="#cb48-15" aria-hidden="true" tabindex="-1"></a>                 <span class="st">"                 Economist vs. Software Developer"</span>,</span>
+<span id="cb48-16"><a href="#cb48-16" aria-hidden="true" tabindex="-1"></a>                 <span class="st">"                   Teacher vs. Software Developer"</span>,</span>
+<span id="cb48-17"><a href="#cb48-17" aria-hidden="true" tabindex="-1"></a>                 <span class="st">"                    Doctor vs. Software Developer"</span>,</span>
+<span id="cb48-18"><a href="#cb48-18" aria-hidden="true" tabindex="-1"></a>                 <span class="st">"                  Biologist vs. Software Developer"</span>,</span>
+<span id="cb48-19"><a href="#cb48-19" aria-hidden="true" tabindex="-1"></a>                 <span class="st">"Job.Security"</span></span>
+<span id="cb48-20"><a href="#cb48-20" aria-hidden="true" tabindex="-1"></a>                 )</span>
+<span id="cb48-21"><a href="#cb48-21" aria-hidden="true" tabindex="-1"></a>ORmtx[,<span class="fu">c</span>(<span class="st">"OR"</span>,<span class="st">"Lower"</span>,<span class="st">"Upper"</span>,<span class="st">"p.value"</span> )]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                        OR Lower Upper p.value
+genderMale                            0.98  0.93  1.03  0.4411
+family_influenceLow                   0.92  0.85  0.99  0.0269
+family_influenceMedium                0.97  0.90  1.04  0.3988
+family_influenceHigh                  0.99  0.92  1.06  0.7504
+current_occupationArtist              1.00  0.89  1.12  0.9662
+current_occupationMechanical Engineer 1.03  0.92  1.15  0.6477
+current_occupationBusiness Analyst    1.06  0.95  1.19  0.3178
+current_occupationLawyer              1.07  0.96  1.20  0.2201
+current_occupationEconomist           1.10  0.98  1.23  0.1119
+current_occupationTeacher             1.10  0.99  1.24  0.0824
+current_occupationDoctor              1.12  1.00  1.25  0.0550
+current_occupationBiologist           1.19  1.06  1.33  0.0026
+job_security                          0.99  0.98  1.00  0.0926</code></pre>
+</div>
+</div>
+<p>To visualize odds ratios (ORs) with 95% confidence intervals (CIs), make a forest plot. The odds ratios are along the x-axis at points (shape = 18, size = 5) that match to indices on the y-axis. To depict the 95% confidence intervals, add horizontal error bars with lower and upper bounds.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(ORmtx, <span class="fu">aes</span>(<span class="at">y =</span> Index, <span class="at">x =</span> OR)) <span class="sc">+</span></span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">shape =</span> <span class="dv">18</span>, <span class="at">size =</span> <span class="dv">5</span>) <span class="sc">+</span>  </span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_errorbarh</span>(<span class="fu">aes</span>(<span class="at">xmin =</span> Lower, <span class="at">xmax =</span> Upper), <span class="at">height =</span> <span class="fl">0.25</span>) <span class="sc">+</span></span>
+<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">1</span>, <span class="at">color =</span> <span class="st">"red"</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>,  <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">name =</span> <span class="st">""</span>, <span class="at">breaks=</span><span class="dv">1</span><span class="sc">:</span><span class="dv">13</span>, <span class="at">labels =</span> ORmtx<span class="sc">$</span>Label, <span class="at">trans =</span> <span class="st">"reverse"</span>) <span class="sc">+</span></span>
+<span id="cb50-6"><a href="#cb50-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Odds Ratio (95% CI)"</span>) <span class="sc">+</span> </span>
+<span id="cb50-7"><a href="#cb50-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">" "</span>) <span class="sc">+</span> </span>
+<span id="cb50-8"><a href="#cb50-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
+<span id="cb50-9"><a href="#cb50-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">panel.border =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb50-10"><a href="#cb50-10" aria-hidden="true" tabindex="-1"></a>        <span class="at">panel.background =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb50-11"><a href="#cb50-11" aria-hidden="true" tabindex="-1"></a>        <span class="at">panel.grid.major =</span> <span class="fu">element_blank</span>(), </span>
+<span id="cb50-12"><a href="#cb50-12" aria-hidden="true" tabindex="-1"></a>        <span class="at">panel.grid.minor =</span> <span class="fu">element_blank</span>(), </span>
+<span id="cb50-13"><a href="#cb50-13" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.line =</span> <span class="fu">element_line</span>(<span class="at">colour =</span> <span class="st">"black"</span>),</span>
+<span id="cb50-14"><a href="#cb50-14" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.text.y =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>, <span class="at">colour =</span> <span class="st">"black"</span>),</span>
+<span id="cb50-15"><a href="#cb50-15" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.text.x.bottom =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>, <span class="at">colour =</span> <span class="st">"black"</span>),</span>
+<span id="cb50-16"><a href="#cb50-16" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.title.x =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>, <span class="at">colour =</span> <span class="st">"black"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="STAT-107-Final-Project_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The multiple logistic regression shows that:</p>
+<ol type="1">
+<li><p><strong>Gender</strong>: There is no statistical evidence of association between gender and career change influence.</p></li>
+<li><p><strong>Family Influence</strong>: The odds of career change interest for those had low family influence is 0.92 times the odds of those had no family influence (95%: 0.85 to 0.99, p=0.0269). No statistical differences comparing medium or high family influences to non family influence.</p></li>
+<li><p><strong>Current Occupation</strong>: The odds of career change interest for biologists is 1.19 times the odds for software developers (95%CI: 1.06 to 1.33, p=0.0026). Teachers and doctors also shows trends of higher odds of career change interests comparing to software developers.The other occupations do not have very different odds of career change interest as software developers.</p></li>
+<li><p><strong>Job Security</strong>: Higher Job security shows somewhat lower odds of career change interest (OR=0.99 for each unit change, 95%CI: 0.98 to 1, p=0.0926).</p></li>
+</ol>
 </section>
 </section>
 <section id="key-findings-and-summary" class="level1">
 <h1>Key Findings and Summary</h1>
 <section id="findings" class="level2">
 <h2 class="anchored" data-anchor-id="findings">Findings:</h2>
+<section id="analysis-1" class="level3">
+<h3 class="anchored" data-anchor-id="analysis-1">Analysis #1:</h3>
 <ul>
-<li><p>[Quick summary of findings from analysis #1]</p></li>
-<li><p>[Quick summary of findings from analysis #2]</p></li>
-<li><p>[Quick summary of findings from analysis #3]</p></li>
+<li>Our findings seem to suggest that gender does not play a major role in predicting career change interest or job satisfaction within the scope of the current dataset.</li>
 </ul>
+</section>
+<section id="analysis-2" class="level3">
+<h3 class="anchored" data-anchor-id="analysis-2">Analysis #2:</h3>
+<ul>
+<li>Job satisfaction seems to have a strongest correlation with the likelihood of changing occupations, while other factors had far weaker relationships.</li>
+</ul>
+</section>
+<section id="analysis-3" class="level3">
+<h3 class="anchored" data-anchor-id="analysis-3">Analysis #3:</h3>
+<ul>
+<li>Interest in changing careers seems to be significantly influenced by work and family influence, with differing results based on particular circumstances. Although they are part of the model, gender and job stability do not show statistical significance with interest in changing careers in this study.</li>
+</ul>
+</section>
 </section>
 <section id="summary" class="level2">
 <h2 class="anchored" data-anchor-id="summary">Summary:</h2>
-<p>[Summary of entire project]</p>
+<p>This analysis explored factors influencing career change, focusing on job satisfaction, work-life balance, salary, family influence, and current occupation. Three key analyses were conducted:</p>
+<ol type="1">
+<li><p>A t-test found no significant gender differences in job satisfaction, career changes, or interest in career change.</p></li>
+<li><p>Job satisfaction showed a strong negative correlation with the likelihood of changing careers, while other factors like salary and work-life balance had weak correlations.</p></li>
+<li><p>Logistic regression revealed that family influence and current occupation were significant in predicting career change interest, while gender and job security had little effect.</p></li>
+</ol>
+<p>Overall, job satisfaction, family influence, and occupation type were the most important factors influencing career change interest, while gender and job security showed minimal impact.</p>
 </section>
 </section>
 
