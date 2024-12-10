@@ -50,6 +50,7 @@ Although many attributes are very useful, given that this analysis won't require
 
 ```{r}
 # summary(data)
+data
 ```
 
 \[Maybe a quick summary if anything interesting? if not, not important\]
@@ -94,6 +95,35 @@ data %>% ggplot(aes(x = career_changes)) +
 data %>% ggplot(aes(x = career_change_interest)) +
   geom_histogram(aes(fill = gender)) +
   facet_grid(cols = vars(gender)) 
+
+#plotting bar graphs of data 
+
+data %>% ggplot(aes(x = job_satisfaction)) +
+  geom_histogram(aes(fill = gender),
+    position = "dodge2") +
+  scale_fill_manual(values = c("maroon","darkgreen")) +
+  labs(
+    x = "Job Satisfaction",
+    y = "Frequency",
+    title = "Job Satisfaction by Gender")
+
+data %>% ggplot(aes(x = career_changes)) +
+  geom_histogram(aes(fill = gender),
+    position = "dodge2") +
+  scale_fill_manual(values = c("maroon","darkgreen")) +
+  labs(
+    x = "Number of Career Changes",
+    y = "Frequency",
+    title = "Career Changes by Gender")
+
+data %>% ggplot(aes(x = career_change_interest)) +
+  geom_histogram(aes(fill = gender),
+    position = "dodge2") +
+  scale_fill_manual(values = c("maroon","darkgreen")) +
+  labs(
+    x = "Career Change Interest",
+    y = "Frequency",
+    title = "Interest in a Change of Career by Gender")
 
 ```
 
