@@ -82,6 +82,19 @@ data %>% group_by(gender) %>% summarize(
 
 #plotting histograms of data to ensure that they fit the normality condition
 
+
+data %>% ggplot(aes(x = job_satisfaction)) +
+  geom_histogram(aes(fill = gender)) +
+  facet_grid(cols = vars(gender)) 
+
+data %>% ggplot(aes(x = career_changes)) +
+  geom_histogram(aes(fill = gender)) +
+  facet_grid(cols = vars(gender)) 
+
+data %>% ggplot(aes(x = career_change_interest)) +
+  geom_histogram(aes(fill = gender)) +
+  facet_grid(cols = vars(gender)) 
+
 ```
 
 \[Summary of analysis\]
