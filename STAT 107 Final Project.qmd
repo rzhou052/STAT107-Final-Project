@@ -66,21 +66,25 @@ library("tidyverse")
 data$gendernum <- ifelse(data$gender == "Male", T,F)
 
 
-#checking parameters to ensure an anova is possible. Standard Error looks similar between groups, which should mean that this will work. 
+#checking parameters and creating a summary. The chosen variables are the level of job satisfaction, the number of career changes, and the stated interest in a career change. 
 data %>% group_by(gender) %>% summarize(
-    n = n(),  
+  # separating by gender to examine differences in ability to move between jobs  
+  n = n(),  
     MeanSatisfaction = mean(job_satisfaction),
     MeanCareerChanges = mean(career_changes),
     MeanCareerChangeInterest = mean(career_change_interest),
+    #creating the means of the variables 
     SDSatisfaction = sd(job_satisfaction),
     SDCareerChanges = sd(career_changes),
     SDCareerChangeInterest = sd(career_change_interest),
+    #calulating the standard deviation
     SESatisfaction = sd(job_satisfaction)/sqrt(n()),
     SECareerChanges = sd(career_changes)/sqrt(n()),
     SECareerChangeInterest = sd(career_change_interest)/sqrt(n())
+    #calculating standard error 
   )
 
-#plotting histograms of data to ensure that they fit the normality condition
+#plotting histograms of data to check distribution -> non-normal distribution makes anova impossible 
 
 
 data %>% ggplot(aes(x = job_satisfaction)) +
@@ -95,7 +99,7 @@ data %>% ggplot(aes(x = career_change_interest)) +
   geom_histogram(aes(fill = gender)) +
   facet_grid(cols = vars(gender)) 
 
-#plotting bar graphs of data 
+#plotting bar graphs of data to examine differences due to gender visually
 
 data %>% ggplot(aes(x = job_satisfaction)) +
   geom_histogram(aes(fill = gender),
@@ -109,7 +113,7 @@ data %>% ggplot(aes(x = job_satisfaction)) +
 
 data %>% ggplot(aes(x = career_changes)) +
   geom_histogram(aes(fill = gender),
-                 binwidth = 1,
+                 binwidth = 0.95,
     position = "dodge2") +
   scale_fill_manual(values = c("maroon","darkgreen")) +
   labs(
@@ -119,7 +123,7 @@ data %>% ggplot(aes(x = career_changes)) +
 
 data %>% ggplot(aes(x = career_change_interest)) +
   geom_histogram(aes(fill = gender),
-                 binwidth = 1,
+                 binwidth = 0.95,
     position = "dodge2") +
   scale_fill_manual(values = c("maroon","darkgreen")) +  
   labs(
@@ -128,7 +132,7 @@ data %>% ggplot(aes(x = career_change_interest)) +
     title = "Interest in a Change of Career by Gender")
 
 
-#creating vectors from each metric separated by gender 
+#creating vectors from each metric separated by gender to compare by t-test
 
 job_satisfaction_m <- data %>% filter(gender == "Male") %>% select(job_satisfaction)
 job_satisfaction_w <- data %>% filter(gender == "Female") %>% select(job_satisfaction)
@@ -137,15 +141,13 @@ career_changes_w <- data %>% filter(gender == "Female") %>% select(career_change
 career_change_interest_m <- data %>% filter(gender == "Male") %>% select(career_change_interest)
 career_change_interest_w <- data %>% filter(gender == "Female") %>% select(career_change_interest)
 
-#using a threshold of 0.05
+#using a threshold of 0.05 for confidence 
 alpha <- 0.05
 
 t.test(job_satisfaction_m,job_satisfaction_w,alternative = "two.sided",conf.level = 1-alpha)
 t.test(career_changes_m,career_changes_w,alternative = "two.sided",conf.level = 1-alpha)
 t.test(career_change_interest_m,career_change_interest_w,alternative = "two.sided",conf.level = 1-alpha)
 ```
-
-\[Summary of analysis\]
 
 ## Analysis #2: Factors Influencing Job Satisfaction Using Chi Square Testing and Linear Regression
 
